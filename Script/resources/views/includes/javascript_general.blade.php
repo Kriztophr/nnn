@@ -1,9 +1,3 @@
-<script>
-window.paceOptions = {
-    ajax: false,
-    restartOnRequestAfter: false,
-};
-</script>
 <script src="{{ asset('public/js/core.min.js') }}?v={{$settings->version}}"></script>
 <script src="{{ asset('public/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('public/js/jqueryTimeago_'.Lang::locale().'.js') }}"></script>
@@ -52,11 +46,11 @@ const lightbox = GLightbox({
     closeEffect: 'fade'
 });
 
-@if (auth()->check())
+@auth
 $('.btnMultipleUpload').on('click', function() {
   $('.fileuploader').toggleClass('d-block');
 });
-@endif
+@endauth
 </script>
 
 @if (auth()->guest()

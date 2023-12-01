@@ -33,13 +33,13 @@ class Notifications extends Model
 			'author' => $userAuthor,
 			'type' => $type,
 			'target' => $target
-	]);
+		]);
 
-	// Send push notification
-	if ($settings->push_notification_status && $getPushNotificationDevices) {
+		// Send push notification
+		if ($settings->push_notification_status && $getPushNotificationDevices) {
 			$authorName = $author->hide_name == 'yes' ? $author->username : $author->name;
 			$post       = Updates::find($target);
-			$postUrl    = $post ? url($post->user()->username.'/'.'post', $post->id) : null;
+			$postUrl    = $post ? url($post->user()->username . '/' . 'post', $post->id) : null;
 
 			app()->setLocale($user->language);
 
@@ -135,17 +135,43 @@ class Notifications extends Model
 					$msg             = __('general.body_account_verification_reject');
 					$linkDestination = url('/');
 					break;
+
+				case 20:
+					$msg             = __('general.error_video_encoding_post');
+					$linkDestination = url('my/posts');
+					break;
+
+				case 21:
+					$msg             = __('general.error_video_encoding_message');
+					$linkDestination = url('messages');
+					break;
+				case 22:
+					$msg             = __('general.error_video_encoding_story');
+					$linkDestination = url('my/stories');
+					break;
+
+				case 23:
+					$msg             = $authorName . ' ' . __('general.has_sent_private_live_stream_request');
+					$linkDestination = url('my/live/private/requests');
+					break;
+
+				case 24:
+					$msg             = __('general.video_processed_successfully_welcome_message');
+					$linkDestination = url('settings/conversations');
+					break;
+
+				case 25:
+					$msg             = __('general.error_video_encoding_welcome_msg');
+					$linkDestination = url('settings/conversations');
+					break;
 			}
 
-		try {
-			// Send push notification
-			PushNotificationTrait::sendPushNotification($msg, $linkDestination, $getPushNotificationDevices);
-
-		} catch (\Exception $e) {
-			\Log::info('Push Notification Error - '.$e->getMessage());
+			try {
+				// Send push notification
+				PushNotificationTrait::sendPushNotification($msg, $linkDestination, $getPushNotificationDevices);
+			} catch (\Exception $e) {
+				\Log::info('Push Notification Error - ' . $e->getMessage());
+			}
 		}
-		
 	}
-  }
-
 }

@@ -113,7 +113,7 @@ return array(
 		'paypal_account'            =>      'Cuenta PayPal',
 		'languages'                 =>      'Lenguajes',
 		'abbreviation'              =>      'Abreviatura',
-		'important_note'            =>      'IMPORTANTE: debe colocar el nombre de la carpeta correcta ubicada en: resources / lang',
+		'important_note'            =>      'IMPORTANTE: debe colocar el nombre de la carpeta correcta ubicada en: lang',
 		'user_no_edit'              =>      'No se puede editar desde el Panel de Admin.',
 		'not_established'           =>      '- No establecido -',
 		'only_users'                =>      'Solo usuarios registrados',

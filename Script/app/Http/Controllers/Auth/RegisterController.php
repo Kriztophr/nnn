@@ -9,15 +9,14 @@ use App\Helper;
 use App\Models\User;
 use App\Models\Countries;
 use App\Models\Referrals;
-use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use App\Models\AdminSettings;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Foundation\Auth\RegistersUsers;
 use App\Http\Controllers\Traits\Functions;
-
+use Illuminate\Foundation\Auth\RegistersUsers;
 
 class RegisterController extends Controller
 {
@@ -137,7 +136,8 @@ class RegisterController extends Controller
         'story'             => trans('users.story_default'),
         'verified_id'       => $verify,
         'ip'                => request()->ip(),
-        'language'          => session('locale')
+        'language'          => session('locale'),
+        'hide_name'         => 'yes',
       ]);
     }
 

@@ -16,6 +16,29 @@
         <div class="col-md-12 mb-5 mb-lg-0">
 
           @if ($posts->count() != 0)
+          <div class="btn-block mb-3 text-right">
+            <span>
+              <select class="ml-2 custom-select mb-2 mb-lg-0 w-auto filter">
+                <option @selected(!request('sort')) value="{{ url('my/posts') }}">{{ __('general.all') }}</option>
+
+                @if ($settings->allow_scheduled_posts)
+                <option @selected(request('sort') == 'scheduled') value="{{ url('my/posts?sort=scheduled') }}">
+                  {{ __('general.scheduled') }}
+                </option> 
+                @endif
+                
+                <option @selected(request('sort') == 'pending') value="{{ url('my/posts?sort=pending') }}">
+                  {{ __('admin.pending') }}
+                </option> 
+
+
+                <option @selected(request('sort') == 'ppv') value="{{ url('my/posts?sort=ppv') }}">
+                  {{ __('general.ppv') }}
+                </option>
+              </select>
+            </span>
+          </div>
+
           <div class="card shadow-sm mb-2">
           <div class="table-responsive">
             <table class="table table-striped m-0">
@@ -39,27 +62,10 @@
                     <td>{{ $post->id }}</td>
 
                     <td>
-                      @if ($post->media->count() != 0)
-                        @foreach ($post->media as $media)
-                          @if ($media->type == 'image')
-                            <i class="feather icon-image mr-1"></i>
-                          @endif
-
-                          @if ($media->type == 'video')
-                            <i class="feather icon-video mr-1"></i>
-                          @endif
-
-                          @if ($media->type == 'music')
-                            <i class="feather icon-mic mr-1"></i>
-                            @endif
-
-                            @if ($media->type == 'file')
-                          <i class="far fa-file-archive"></i>
-                          @endif
-                        @endforeach
-
+                      @if ($post->media_count)
+                      {{ $post->media_count }} {{trans_choice('general.files', $post->media_count )}}
                       @else
-                        <i class="bi bi-file-font"></i>
+                      {{ __('general.text') }}
                       @endif
                     </td>
 
@@ -85,7 +91,12 @@
                     <td>
                       @if ($post->status == 'active')
                         <span class="badge badge-pill badge-success text-uppercase">{{__('general.active')}}</span>
-                      @else
+                      @elseif($post->status == 'schedule')
+                      <span class="badge badge-pill badge-info text-uppercase">{{__('general.scheduled')}}</span>
+                        <a tabindex="0" role="button" data-container="body" data-toggle="popover" data-trigger="focus" data-placement="top" data-content="{{ __('general.date_schedule') }} {{ Helper::formatDateSchedule($post->scheduled_date) }}">
+                          <i class="far fa-question-circle"></i>
+                        </a>
+                        @else
                         <span class="badge badge-pill badge-warning text-uppercase">{{__('general.pending')}}</span>
                       @endif
                     </td>

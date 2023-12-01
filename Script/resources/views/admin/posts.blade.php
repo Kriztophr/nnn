@@ -29,8 +29,8 @@
 					<div class="d-lg-flex justify-content-lg-between align-items-center mb-2 w-100">
 						<form action="{{ url('panel/admin/posts') }}" id="formSort" method="get">
 							 <select name="sort" id="sort" class="form-select d-inline-block w-auto filter">
-									<option @if ($sort == '') selected="selected" @endif value="">{{ trans('admin.sort_id') }}</option>
-									<option @if ($sort == 'pending') selected="selected" @endif value="pending">{{ trans('admin.pending') }}</option>
+									<option @if ($sort == '') selected="selected" @endif value="">{{ __('admin.sort_id') }}</option>
+									<option @if ($sort == 'pending') selected="selected" @endif value="pending">{{ __('admin.pending') }}</option>
 								</select>
 								</form><!-- form -->
 						</div>
@@ -43,13 +43,13 @@
 							@if ($data->count() !=  0)
 								 <tr>
 									  <th class="active">ID</th>
-										<th class="active">{{ trans('admin.description') }}</th>
-										<th class="active">{{ trans('admin.content') }}</th>
-										<th class="active">{{ trans('admin.type') }}</th>
-										<th class="active">{{ trans('general.creator') }}</th>
-										<th class="active">{{ trans('admin.date') }}</th>
-										<th class="active">{{ trans('admin.status') }}</th>
-										<th class="active">{{ trans('admin.actions') }}</th>
+										<th class="active">{{ __('admin.description') }}</th>
+										<th class="active">{{ __('admin.content') }}</th>
+										<th class="active">{{ __('admin.type') }}</th>
+										<th class="active">{{ __('general.creator') }}</th>
+										<th class="active">{{ __('admin.date') }}</th>
+										<th class="active">{{ __('admin.status') }}</th>
+										<th class="active">{{ __('admin.actions') }}</th>
 									</tr>
 
 								@foreach ($data as $post)
@@ -96,20 +96,42 @@
 													{{$post->user()->username}} <i class="fa fa-external-link-square-alt"></i>
 												</a>
 											@else
-												<em>{{ trans('general.no_available') }}</em>
+												<em>{{ __('general.no_available') }}</em>
 											@endif
 
 											</td>
 										<td>{{ Helper::formatDate($post->date) }}</td>
 										<td>
-											<span class="rounded-pill badge bg-{{ $post->status == 'active' ? 'success' : ($post->status == 'pending' ? 'warning' : 'info') }}">
-												{{ $post->status == 'active' ? trans('admin.active') :  ($post->status == 'pending' ? trans('admin.pending') : trans('general.encode')) }}
-											</span>
+											@switch($post->status)
+												@case('active')
+												<span class="rounded-pill badge bg-success">
+													{{ __('admin.active') }}
+												</span>
+													@break
+
+												@case('pending')
+													<span class="rounded-pill badge bg-warning">
+													{{ __('admin.pending') }}
+													</span>
+													@break
+
+												@case('encode')
+												<span class="rounded-pill badge bg-info">
+													{{ __('general.encode') }}
+													</span>
+													@break
+
+												@case('schedule')
+												<span class="rounded-pill badge bg-info">
+													{{ __('general.scheduled') }}
+													</span>
+													@break
+											@endswitch
 											</td>
 										<td>
 											<div class="d-flex">
 											@if (isset($post->user()->username) && $post->status != 'encode')
-											<a href="{{ url($post->user()->username, 'post').'/'.$post->id }}" target="_blank" class="btn btn-success btn-sm rounded-pill me-2" title="{{ trans('admin.view') }}">
+											<a href="{{ url($post->user()->username, 'post').'/'.$post->id }}" target="_blank" class="btn btn-success btn-sm rounded-pill me-2" title="{{ __('admin.view') }}">
 												<i class="bi-eye"></i>
 											</a>
 										@endif
@@ -121,7 +143,7 @@
 												'class' => 'displayInline'
 											]) !!}
 
-											{!! Form::button(trans('admin.approve'), ['class' => 'btn btn-success btn-sm padding-btn rounded-pill me-2 actionApprovePost']) !!}
+											{!! Form::button(__('admin.approve'), ['class' => 'btn btn-success btn-sm padding-btn rounded-pill me-2 actionApprovePost']) !!}
 											{!! Form::close() !!}
 											@endif
 
@@ -131,11 +153,11 @@
 											 'class' => 'displayInline'
 										 ]) !!}
 
-										 @if ($post->status == 'active' || $post->status == 'encode')
+										 @if ($post->status == 'active' || $post->status == 'encode' || $post->status == 'schedule')
 											 {!! Form::button('<i class="bi-trash-fill"></i>', ['class' => 'btn btn-danger btn-sm padding-btn rounded-pill actionDelete']) !!}
 
 										 @else
-											 {!! Form::button(trans('general.reject'), ['class' => 'btn btn-danger btn-sm padding-btn rounded-pill actionDeletePost']) !!}
+											 {!! Form::button(__('general.reject'), ['class' => 'btn btn-danger btn-sm padding-btn rounded-pill actionDeletePost']) !!}
 										 @endif
 
 										 {!! Form::close() !!}
@@ -148,7 +170,7 @@
 									@endforeach
 
 									@else
-										<h5 class="text-center p-5 text-muted fw-light m-0">{{ trans('general.no_results_found') }}</h5>
+										<h5 class="text-center p-5 text-muted fw-light m-0">{{ __('general.no_results_found') }}</h5>
 									@endif
 
 								</tbody>

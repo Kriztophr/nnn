@@ -262,10 +262,10 @@
 
 										{{__('general.subscribed_to')}}
 
-										@if (! isset($subscription->creator->first()->username))
+										@if (! isset($subscription->creator->username))
 											<em class="text-muted">{{ __('general.no_available') }}</em>
 									@else
-										<a href="{{url($subscription->creator->first()->username)}}" target="_blank">{{$subscription->creator->first()->name}}</a>
+										<a href="{{url($subscription->creator->username)}}" target="_blank">{{$subscription->creator->name}}</a>
 									@endif
 
 									</h6>

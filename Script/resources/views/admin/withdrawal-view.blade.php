@@ -45,6 +45,9 @@
               <dd class="col-sm-10">{{ $data->user()->countries_id != '' ? $data->user()->country()->country_name : __('general.no_available')}}</dd>
               <dt class="col-sm-2 text-lg-end">{{ __('general.document_id') }}</dt>
               <dd class="col-sm-10">{{$data->account}}</dd>
+              @elseif ($data->gateway == 'Bitcoin')
+              <dt class="col-sm-2 text-lg-end">{{ __('general.bitcoin_wallet') }}</dt>
+              <dd class="col-sm-10">{{$data->account}}</dd>
               @else
               <dt class="col-sm-2 text-lg-end">{{ __('general.bank_details') }}</dt>
               <dd class="col-sm-10">{!!Helper::checkText($data->account)!!}</dd>

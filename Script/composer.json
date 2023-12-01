@@ -23,6 +23,7 @@
         "league/color-extractor": "^0.4.0",
         "league/flysystem-aws-s3-v3": "^3.0",
         "league/glide-laravel": "^1.0",
+        "livewire/livewire": "^3.0",
         "marcandreappel/laravel-backblaze-b2": "^2.0",
         "mercadopago/dx-php": "2.5.5",
         "mollie/laravel-mollie": "^2.23",

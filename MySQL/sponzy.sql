@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 11-08-2023 a las 13:44:19
+-- Tiempo de generación: 30-11-2023 a las 00:49:52
 -- Versión del servidor: 10.4.24-MariaDB
 -- Versión de PHP: 8.1.4
 
@@ -182,15 +182,64 @@ CREATE TABLE `admin_settings` (
   `story_image` tinyint(1) NOT NULL DEFAULT 1,
   `story_text` tinyint(1) NOT NULL DEFAULT 1,
   `story_max_videos_length` int(10) UNSIGNED NOT NULL DEFAULT 30,
-  `payout_method_western_union` enum('on','off') NOT NULL DEFAULT 'off'
+  `payout_method_western_union` enum('on','off') NOT NULL DEFAULT 'off',
+  `payout_method_crypto` enum('on','off') NOT NULL DEFAULT 'off',
+  `threads` varchar(200) NOT NULL,
+  `watermak_video` varchar(100) NOT NULL,
+  `coconut_key` varchar(255) NOT NULL,
+  `encoding_method` varchar(255) NOT NULL DEFAULT 'ffmpeg',
+  `allow_scheduled_posts` tinyint(1) DEFAULT 0,
+  `google_tag_manager_head` text NOT NULL,
+  `google_tag_manager_body` text NOT NULL,
+  `live_streaming_private` enum('on','off') NOT NULL DEFAULT 'off',
+  `live_streaming_minimum_price_private` decimal(10,2) DEFAULT NULL,
+  `live_streaming_max_price_private` decimal(10,2) DEFAULT NULL,
+  `limit_live_streaming_private` int(10) UNSIGNED NOT NULL,
+  `show_address_company_footer` tinyint(1) DEFAULT 0,
+  `watermark_position` varchar(50) NOT NULL DEFAULT 'center'
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
 -- Volcado de datos para la tabla `admin_settings`
 --
 
-INSERT INTO `admin_settings` (`id`, `title`, `description`, `keywords`, `update_length`, `status_page`, `email_verification`, `email_no_reply`, `email_admin`, `captcha`, `file_size_allowed`, `google_analytics`, `paypal_account`, `twitter`, `facebook`, `pinterest`, `instagram`, `google_adsense`, `currency_symbol`, `currency_code`, `min_subscription_amount`, `payment_gateway`, `min_width_height_image`, `fee_commission`, `max_subscription_amount`, `date_format`, `link_privacy`, `link_terms`, `currency_position`, `facebook_login`, `amount_min_withdrawal`, `youtube`, `github`, `comment_length`, `days_process_withdrawals`, `google_login`, `number_posts_show`, `number_comments_show`, `registration_active`, `account_verification`, `logo`, `logo_2`, `favicon`, `home_index`, `bg_gradient`, `img_1`, `img_2`, `img_3`, `img_4`, `avatar`, `show_counter`, `color_default`, `decimal_format`, `version`, `link_cookies`, `story_length`, `maintenance_mode`, `company`, `country`, `address`, `city`, `zip`, `vat`, `widget_creators_featured`, `home_style`, `file_size_allowed_verify_account`, `payout_method_paypal`, `payout_method_bank`, `min_tip_amount`, `max_tip_amount`, `min_ppv_amount`, `max_ppv_amount`, `min_deposits_amount`, `max_deposits_amount`, `button_style`, `twitter_login`, `hide_admin_profile`, `requests_verify_account`, `navbar_background_color`, `navbar_text_color`, `footer_background_color`, `footer_text_color`, `preloading`, `preloading_image`, `watermark`, `earnings_simulator`, `custom_css`, `custom_js`, `alert_adult`, `genders`, `cover_default`, `who_can_see_content`, `users_can_edit_post`, `disable_wallet`, `disable_banner_cookies`, `wallet_format`, `maximum_files_post`, `maximum_files_msg`, `announcement`, `announcement_show`, `announcement_cookie`, `limit_categories`, `captcha_contact`, `disable_tips`, `payout_method_payoneer`, `payout_method_zelle`, `type_announcement`, `referral_system`, `auto_approve_post`, `watermark_on_videos`, `percentage_referred`, `referral_transaction_limit`, `video_encoding`, `live_streaming_status`, `live_streaming_minimum_price`, `live_streaming_max_price`, `agora_app_id`, `tiktok`, `snapchat`, `limit_live_streaming_paid`, `limit_live_streaming_free`, `live_streaming_free`, `type_withdrawals`, `shop`, `min_price_product`, `max_price_product`, `digital_product_sale`, `custom_content`, `tax_on_wallet`, `stripe_connect`, `stripe_connect_countries`, `physical_products`, `disable_login_register_email`, `disable_contact`, `specific_day_payment_withdrawals`, `disable_new_post_notification`, `disable_search_creators`, `search_creators_genders`, `generate_qr_code`, `autofollow_admin`, `allow_zip_files`, `reddit`, `telegram`, `linkedin`, `push_notification_status`, `onesignal_appid`, `onesignal_restapi`, `status_pwa`, `zip_verification_creator`, `amount_max_withdrawal`, `story_status`, `story_image`, `story_text`, `story_max_videos_length`, `payout_method_western_union`) VALUES
-(1, 'Sponzy', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer ut tortor rutrum massa efficitur tincidunt vel nec lacus. Curabitur porta aliquet diam, eu gravida neque lacinia.', 'donations,support,creators,Creaty,subscription', 250, '1', '0', 'no-reply@sponzy.net', 'admin@admin.com', 'off', 5120, '', 'paypal@yousite.com', '', '', '', '', '', '$', 'USD', 2, 'PayPal', '400', 5, 100, 'M d, Y', 'https://yousite.com/p/privacy', 'https://yousite.com/p/terms-of-service', 'left', 'off', 50, '', '', 150, 7, 'off', 5, 2, '1', '1', 'logo.png', 'logo-blue.png', 'favicon.png', 'home_index.png', 'bg-gradient.jpg', 'img_1.svg', 'img_2.svg', 'img_3.svg', 'img_4.png', 'default.jpg', 'off', '#450ea7', 'dot', '4.9', 'https://yousite.com/p/cookies', 500, 'off', '', '', '', '', '', '', 'off', 0, 1024, 'on', 'on', 5, 100, 5, 100, 5, 100, 'rounded', 'off', 'off', 'on', '#ffffff', '#3a3a3a', '#ffffff', '#5f5f5f', 'off', '', 'on', 'on', '', '', 'off', 'male,female', '', 'all', 'on', 'off', 'off', 'real_money', 5, 5, '', '', '', 3, 'on', 'off', 'off', 'off', 'primary', 'off', 'on', 'on', 5, '1', 'off', 'off', 5, 100, '', '', '', 0, 0, '0', 'custom', 0, 5, 100, 0, 0, 1, 0, '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, '', '', '', 0, '', '', 1, 1, 0, 0, 1, 1, 30, 'off');
+INSERT INTO `admin_settings` (`id`, `title`, `description`, `keywords`, `update_length`, `status_page`, `email_verification`, `email_no_reply`, `email_admin`, `captcha`, `file_size_allowed`, `google_analytics`, `paypal_account`, `twitter`, `facebook`, `pinterest`, `instagram`, `google_adsense`, `currency_symbol`, `currency_code`, `min_subscription_amount`, `payment_gateway`, `min_width_height_image`, `fee_commission`, `max_subscription_amount`, `date_format`, `link_privacy`, `link_terms`, `currency_position`, `facebook_login`, `amount_min_withdrawal`, `youtube`, `github`, `comment_length`, `days_process_withdrawals`, `google_login`, `number_posts_show`, `number_comments_show`, `registration_active`, `account_verification`, `logo`, `logo_2`, `favicon`, `home_index`, `bg_gradient`, `img_1`, `img_2`, `img_3`, `img_4`, `avatar`, `show_counter`, `color_default`, `decimal_format`, `version`, `link_cookies`, `story_length`, `maintenance_mode`, `company`, `country`, `address`, `city`, `zip`, `vat`, `widget_creators_featured`, `home_style`, `file_size_allowed_verify_account`, `payout_method_paypal`, `payout_method_bank`, `min_tip_amount`, `max_tip_amount`, `min_ppv_amount`, `max_ppv_amount`, `min_deposits_amount`, `max_deposits_amount`, `button_style`, `twitter_login`, `hide_admin_profile`, `requests_verify_account`, `navbar_background_color`, `navbar_text_color`, `footer_background_color`, `footer_text_color`, `preloading`, `preloading_image`, `watermark`, `earnings_simulator`, `custom_css`, `custom_js`, `alert_adult`, `genders`, `cover_default`, `who_can_see_content`, `users_can_edit_post`, `disable_wallet`, `disable_banner_cookies`, `wallet_format`, `maximum_files_post`, `maximum_files_msg`, `announcement`, `announcement_show`, `announcement_cookie`, `limit_categories`, `captcha_contact`, `disable_tips`, `payout_method_payoneer`, `payout_method_zelle`, `type_announcement`, `referral_system`, `auto_approve_post`, `watermark_on_videos`, `percentage_referred`, `referral_transaction_limit`, `video_encoding`, `live_streaming_status`, `live_streaming_minimum_price`, `live_streaming_max_price`, `agora_app_id`, `tiktok`, `snapchat`, `limit_live_streaming_paid`, `limit_live_streaming_free`, `live_streaming_free`, `type_withdrawals`, `shop`, `min_price_product`, `max_price_product`, `digital_product_sale`, `custom_content`, `tax_on_wallet`, `stripe_connect`, `stripe_connect_countries`, `physical_products`, `disable_login_register_email`, `disable_contact`, `specific_day_payment_withdrawals`, `disable_new_post_notification`, `disable_search_creators`, `search_creators_genders`, `generate_qr_code`, `autofollow_admin`, `allow_zip_files`, `reddit`, `telegram`, `linkedin`, `push_notification_status`, `onesignal_appid`, `onesignal_restapi`, `status_pwa`, `zip_verification_creator`, `amount_max_withdrawal`, `story_status`, `story_image`, `story_text`, `story_max_videos_length`, `payout_method_western_union`, `payout_method_crypto`, `threads`, `watermak_video`, `coconut_key`, `encoding_method`, `allow_scheduled_posts`, `google_tag_manager_head`, `google_tag_manager_body`, `live_streaming_private`, `live_streaming_minimum_price_private`, `live_streaming_max_price_private`, `limit_live_streaming_private`, `show_address_company_footer`, `watermark_position`) VALUES
+(1, 'Sponzy', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer ut tortor rutrum massa efficitur tincidunt vel nec lacus. Curabitur porta aliquet diam, eu gravida neque lacinia.', 'donations,support,creators,Creaty,subscription', 250, '1', '0', 'no-reply@sponzy.net', 'admin@admin.com', 'off', 5120, '', 'paypal@yousite.com', '', '', '', '', '', '$', 'USD', 2, 'PayPal', '400', 5, 100, 'M d, Y', 'https://yousite.com/p/privacy', 'https://yousite.com/p/terms-of-service', 'left', 'off', 50, '', '', 150, 7, 'off', 5, 2, '1', '1', 'logo.png', 'logo-blue.png', 'favicon.png', 'home_index.png', 'bg-gradient.jpg', 'img_1.svg', 'img_2.svg', 'img_3.svg', 'img_4.png', 'default.jpg', 'off', '#450ea7', 'dot', '5.1', 'https://yousite.com/p/cookies', 500, 'off', '', '', '', '', '', '', 'off', 0, 1024, 'on', 'on', 5, 100, 5, 100, 5, 100, 'rounded', 'off', 'off', 'on', '#ffffff', '#3a3a3a', '#ffffff', '#5f5f5f', 'off', '', 'on', 'on', '', '', 'off', 'male,female', '', 'all', 'on', 'off', 'off', 'real_money', 5, 5, '', '', '', 3, 'on', 'off', 'off', 'off', 'primary', 'off', 'on', 'on', 5, '1', 'off', 'off', 5, 100, '', '', '', 0, 0, '0', 'custom', 0, 5, 100, 0, 0, 1, 0, '', 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, '', '', '', 0, '', '', 0, 1, 0, 0, 1, 1, 30, 'off', 'off', '', 'watermak-video.png', '', 'ffmpeg', 0, '', '', 'off', NULL, NULL, 0, 0, 'center');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `advertisings`
+--
+
+CREATE TABLE `advertisings` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `title` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `url` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `image` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `clicks` int(10) UNSIGNED NOT NULL,
+  `impressions` int(10) UNSIGNED NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 1,
+  `expired_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `ad_click_impressions`
+--
+
+CREATE TABLE `ad_click_impressions` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `advertisings_id` bigint(20) UNSIGNED NOT NULL,
+  `type` char(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ip` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -699,14 +748,37 @@ CREATE TABLE `live_online_users` (
 
 CREATE TABLE `live_streamings` (
   `id` bigint(20) UNSIGNED NOT NULL,
+  `type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'normal',
   `user_id` int(10) UNSIGNED NOT NULL,
+  `buyer_id` int(10) UNSIGNED DEFAULT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `channel` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `minutes` int(10) UNSIGNED NOT NULL,
   `price` int(10) UNSIGNED NOT NULL,
   `status` enum('0','1') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '0',
+  `joined_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `availability` char(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'all_pay'
+  `ends_at` timestamp NULL DEFAULT NULL,
+  `availability` char(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'all_pay',
+  `token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `live_streaming_private_requests`
+--
+
+CREATE TABLE `live_streaming_private_requests` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `transaction_id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` int(10) UNSIGNED NOT NULL,
+  `creator_id` int(10) UNSIGNED NOT NULL,
+  `minutes` int(10) UNSIGNED NOT NULL,
+  `status` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -727,16 +799,6 @@ CREATE TABLE `login_sessions` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Volcado de datos para la tabla `login_sessions`
---
-
-INSERT INTO `login_sessions` (`id`, `user_id`, `ip`, `device`, `device_type`, `browser`, `platform`, `country`, `created_at`, `updated_at`) VALUES
-(1, 1, '127.0.0.1', 'WebKit', 'desktop', 'Chrome 106.0.0.0', 'Windows 10.0', NULL, '2022-10-16 05:00:54', '2022-10-16 05:00:54'),
-(2, 1, '127.0.0.1', 'WebKit', 'desktop', 'Chrome 109.0.0.0', 'Windows 10.0', NULL, '2023-01-27 00:32:30', '2023-01-27 00:32:30'),
-(3, 1, '127.0.0.1', 'WebKit', 'desktop', 'Chrome 114.0.0.0', 'Windows 10.0', NULL, '2023-07-28 10:46:43', '2023-07-28 10:46:43'),
-(4, 1, '127.0.0.1', 'WebKit', 'desktop', 'Chrome 115.0.0.0', 'Windows 10.0', NULL, '2023-08-02 12:37:59', '2023-08-11 21:19:44');
 
 -- --------------------------------------------------------
 
@@ -766,7 +828,8 @@ CREATE TABLE `media` (
   `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `status` enum('active','pending') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `job_id` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -791,7 +854,8 @@ CREATE TABLE `media_messages` (
   `status` enum('active','pending') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `encoded` enum('yes','no') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'no'
+  `encoded` enum('yes','no') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'no',
+  `job_id` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -825,6 +889,35 @@ CREATE TABLE `media_stories` (
   `font_color` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '#ffffff',
   `font` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Arial',
   `status` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `job_id` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `media_welcome_messages`
+--
+
+CREATE TABLE `media_welcome_messages` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `creator_id` int(10) UNSIGNED NOT NULL,
+  `type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `file` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `width` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `height` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `video_poster` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `duration_video` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `quality_video` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `file_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `file_size` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `file_size_bytes` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mime_type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `encoded` enum('yes','no') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'no',
+  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'active',
+  `job_id` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -956,26 +1049,28 @@ CREATE TABLE `payment_gateways` (
   `project_secret` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `ccbill_datalink_username` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `ccbill_datalink_password` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `ccbill_skip_subaccount_cancellations` tinyint(1) NOT NULL DEFAULT 0
+  `ccbill_skip_subaccount_cancellations` tinyint(1) NOT NULL DEFAULT 0,
+  `allow_payments_alipay` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Volcado de datos para la tabla `payment_gateways`
 --
 
-INSERT INTO `payment_gateways` (`id`, `name`, `type`, `enabled`, `sandbox`, `fee`, `fee_cents`, `email`, `token`, `key`, `key_secret`, `bank_info`, `recurrent`, `logo`, `webhook_secret`, `subscription`, `ccbill_accnum`, `ccbill_subacc`, `ccbill_flexid`, `ccbill_salt`, `ccbill_subacc_subscriptions`, `project_id`, `project_secret`, `ccbill_datalink_username`, `ccbill_datalink_password`, `ccbill_skip_subaccount_cancellations`) VALUES
-(1, 'PayPal', 'normal', '0', 'true', '5.4', '0.30', '', '02bGGfD9bHevK3eJN06CdDvFSTXsTrTG44yGdAONeN1R37jqnLY1PuNF0mJRoFnsEygyf28yePSCA1eR0alQk4BX89kGG9Rlha2D2KX55TpDFNR5o774OshrkHSZLOFo2fAhHzcWKnwsYDFKgwuaRg', '', '', '', 'yes', 'paypal.png', '', 'yes', '', '', '', '', '', NULL, NULL, NULL, NULL, 0),
-(2, 'Stripe', 'card', '0', 'true', '2.9', '0.30', '', 'asfQSGRvYzS1P0X745krAAyHeU7ZbTpHbYKnxI2abQsBUi48EpeAu5lFAU2iBmsUWO5tpgAn9zzussI4Cce5ZcANIAmfBz0bNR9g3UfR4cserhkJwZwPsETiXiZuCixXVDHhCItuXTPXXSA6KITEoT', '', '', '', 'yes', 'stripe.png', '', 'yes', '', '', '', '', '', NULL, NULL, NULL, NULL, 0),
-(3, 'Bank', 'bank', '0', 'true', '0.0', '0.00', '', 'MUXRUWEuhBulbgDGUS4PbTCCjlUGr4VcGb59RU2rRWtgCHstntxq2eOeeDvIHKUwxj5z2njJ6DUGfmt0PzFnEWuspasmCserf705dJeQcVttZtHugTlBMlzt0Uf6K4DjVmGVtyZuPzXakjrFGVLYRd', '', '', '', 'no', '', '', 'no', '', '', '', '', '', NULL, NULL, NULL, NULL, 0),
-(4, 'CCBill', 'card', '0', 'true', '0.0', '0.00', '', 'zYYFZRjTfypGTPg0TCgWK8SKdLjGEMuNGMYedjl1D0hgmSPDS0UUduCNqkYL609NWH6ru6qdaBGFIzxeL85HwEtIOBfEQRC16qIQZ1zkTM1wbcC4fe2Wxpom6g8zmoOR1ppFN6MbPFHUJQur434Nzg', '', '', '', 'yes', '', '', 'yes', '', '', '', '', '', NULL, NULL, NULL, NULL, 0),
-(5, 'Paystack', 'card', '0', 'true', '0.0', '0.00', '', '4w2JnfBSvoZKLiVRzHRWu3pzkgsFslVZBn8Z4mmwzVJ5KVfiFZN9kTgfFEVu90E1wPN8TnaXhtmYKwkzZ0p6HGUo1S5yVXisVxlD2PIOcm6v096akLbMAgjxiXCdFlCALkZXqi4pfrwxpYd7BGFk8c', '', '', '', 'yes', '', '', 'yes', '', '', '', '', '', NULL, NULL, NULL, NULL, 0),
-(6, 'Coinpayments', 'normal', '0', 'true', '0.0', '0.00', '', 'nzfADI4PgRHRn8m3r7UrR0arnfT9u1rDOQL5SKGbqPjDOZGDZA35NX3y0lQBAdmIyGVS58Rr9OtebfpGNpiXROq1G1DJNqq6xoD04fLKWTaAS2Xh3CZvECa1OfH5cchJ2P6kEl167Caax2XyAwwjGl', '', '', '', 'no', 'coinpayments.png', '', 'no', '', '', '', '', '', NULL, NULL, NULL, NULL, 0),
-(7, 'Mercadopago', 'normal', '0', 'true', '0.0', '0.00', '', 'UmqNKk1EzDyjGgJxAswkhzL8bSdHusZh8RxF4hqzCEf52qdMOAMzMCchsKrLZgPcuTry6AZLLG7DUGwlpXVVpv1CajJbiV3j4EvPqbbIkBCoOptrDWZY1nRJhMc39v6NDOKFo9TjHQdnwU5pZSSReW', '', '', '', 'no', 'mercadopago.png', '', 'no', '', '', '', '', '', NULL, NULL, NULL, NULL, 0),
-(8, 'Flutterwave', 'normal', '0', 'true', '0.0', '0.00', '', 'jMF4RWTW14dfJxlusZ22jGeCLdc8i3416CNiw2ny4l8kGBILQDTrhLtCsDxmb1MfBQA6xGh5BhQBrOXCUBB8lQMZrCaJQykG3Nxbv0ADFUSJiNewq7kbSkxyR3rCbbVjhBYMtWt6dpJTB78CafpA6T', '', '', '', 'no', 'flutterwave.png', '', 'no', '', '', '', '', '', NULL, NULL, NULL, NULL, 0),
-(9, 'Mollie', 'normal', '0', 'true', '0.0', '0.00', '', 'EqvhQZimw0L3zWQ35AV93iDOqgQnkXV9cqLnIvgsnz2zRLpjeZUv5JnC3QzTjtctYuVmzuo06N31tLCRPFJNkomdh7Rhk2zxe68GzgWsL1hc6YEM5V5W6JVnqwQfAzNGZkY6ZRFKmZCMbFQXOF3WkR', '', '', '', 'no', 'mollie.png', '', 'no', '', '', '', '', '', NULL, NULL, NULL, NULL, 0),
-(10, 'Razorpay', 'normal', '0', 'true', '0.0', '0.00', '', 'PsNqGq2rlLjo4AaTTsJpxshttwFFrLXjaKcwwQeG2r8aekDoETl9OG1cqND9PluycCfXazyzUiLo7ZFWs2tBWYwOpGcM8i5ID93Kr7Y6l79XrBcST56QONVpEcAuLRs36Z2t1Q1MBlR315c6vSpAFX', '', '', '', 'no', 'razorpay.png', '', 'no', '', '', '', '', '', NULL, NULL, NULL, NULL, 0),
-(11, 'Coinbase', 'normal', '0', 'true', '0.0', '0.00', '', 'sjuRSAj4VdjaBx2bcdXgDbvTdpiHJF40CNsX5vqw4VaaaohvDS48Oc30N6DAxIxChfd2qWQ99q6e11E90OOKwmo0RbXUv3fdpPksWMvJUkm8i7F5ajbsy0LbjqyidUBqJP0BG6H3NkidnbhtfcDF45', '', '', '', 'no', 'coinbase.png', '', 'no', '', '', '', '', '', NULL, NULL, NULL, NULL, 0),
-(12, 'NowPayments', 'normal', '0', 'true', '0.0', '0.00', '', '4DPdFIbqqPqI8XjseCCV1RRVwVuuQx6WtYdHIkMDtxgUKCQaS9Mqww4WUwa6fIxn7NN9ediLstZyIYQQIIt9l6rUANRSzrUVt86J5FopCkZHvysC8CMRBS3LOnKDbNHiUmVh91CkmvjiwCrFApfrtH', '', '', '', 'no', 'nowpayments.png', '', 'no', '', '', '', '', '', NULL, NULL, NULL, NULL, 0);
+INSERT INTO `payment_gateways` (`id`, `name`, `type`, `enabled`, `sandbox`, `fee`, `fee_cents`, `email`, `token`, `key`, `key_secret`, `bank_info`, `recurrent`, `logo`, `webhook_secret`, `subscription`, `ccbill_accnum`, `ccbill_subacc`, `ccbill_flexid`, `ccbill_salt`, `ccbill_subacc_subscriptions`, `project_id`, `project_secret`, `ccbill_datalink_username`, `ccbill_datalink_password`, `ccbill_skip_subaccount_cancellations`, `allow_payments_alipay`) VALUES
+(1, 'PayPal', 'normal', '0', 'true', '5.4', '0.30', '', '02bGGfD9bHevK3eJN06CdDvFSTXsTrTG44yGdAONeN1R37jqnLY1PuNF0mJRoFnsEygyf28yePSCA1eR0alQk4BX89kGG9Rlha2D2KX55TpDFNR5o774OshrkHSZLOFo2fAhHzcWKnwsYDFKgwuaRg', '', '', '', 'yes', 'paypal.png', '', 'yes', '', '', '', '', '', NULL, NULL, NULL, NULL, 0, 0),
+(2, 'Stripe', 'card', '0', 'true', '2.9', '0.30', '', 'asfQSGRvYzS1P0X745krAAyHeU7ZbTpHbYKnxI2abQsBUi48EpeAu5lFAU2iBmsUWO5tpgAn9zzussI4Cce5ZcANIAmfBz0bNR9g3UfR4cserhkJwZwPsETiXiZuCixXVDHhCItuXTPXXSA6KITEoT', '', '', '', 'yes', 'stripe.png', '', 'yes', '', '', '', '', '', NULL, NULL, NULL, NULL, 0, 0),
+(3, 'Bank', 'bank', '0', 'true', '0.0', '0.00', '', 'MUXRUWEuhBulbgDGUS4PbTCCjlUGr4VcGb59RU2rRWtgCHstntxq2eOeeDvIHKUwxj5z2njJ6DUGfmt0PzFnEWuspasmCserf705dJeQcVttZtHugTlBMlzt0Uf6K4DjVmGVtyZuPzXakjrFGVLYRd', '', '', '', 'no', '', '', 'no', '', '', '', '', '', NULL, NULL, NULL, NULL, 0, 0),
+(4, 'CCBill', 'card', '0', 'true', '0.0', '0.00', '', 'zYYFZRjTfypGTPg0TCgWK8SKdLjGEMuNGMYedjl1D0hgmSPDS0UUduCNqkYL609NWH6ru6qdaBGFIzxeL85HwEtIOBfEQRC16qIQZ1zkTM1wbcC4fe2Wxpom6g8zmoOR1ppFN6MbPFHUJQur434Nzg', '', '', '', 'yes', '', '', 'yes', '', '', '', '', '', NULL, NULL, NULL, NULL, 0, 0),
+(5, 'Paystack', 'card', '0', 'true', '0.0', '0.00', '', '4w2JnfBSvoZKLiVRzHRWu3pzkgsFslVZBn8Z4mmwzVJ5KVfiFZN9kTgfFEVu90E1wPN8TnaXhtmYKwkzZ0p6HGUo1S5yVXisVxlD2PIOcm6v096akLbMAgjxiXCdFlCALkZXqi4pfrwxpYd7BGFk8c', '', '', '', 'yes', '', '', 'yes', '', '', '', '', '', NULL, NULL, NULL, NULL, 0, 0),
+(6, 'Coinpayments', 'normal', '0', 'true', '0.0', '0.00', '', 'nzfADI4PgRHRn8m3r7UrR0arnfT9u1rDOQL5SKGbqPjDOZGDZA35NX3y0lQBAdmIyGVS58Rr9OtebfpGNpiXROq1G1DJNqq6xoD04fLKWTaAS2Xh3CZvECa1OfH5cchJ2P6kEl167Caax2XyAwwjGl', '', '', '', 'no', 'coinpayments.png', '', 'no', '', '', '', '', '', NULL, NULL, NULL, NULL, 0, 0),
+(7, 'Mercadopago', 'normal', '0', 'true', '0.0', '0.00', '', 'UmqNKk1EzDyjGgJxAswkhzL8bSdHusZh8RxF4hqzCEf52qdMOAMzMCchsKrLZgPcuTry6AZLLG7DUGwlpXVVpv1CajJbiV3j4EvPqbbIkBCoOptrDWZY1nRJhMc39v6NDOKFo9TjHQdnwU5pZSSReW', '', '', '', 'no', 'mercadopago.png', '', 'no', '', '', '', '', '', NULL, NULL, NULL, NULL, 0, 0),
+(8, 'Flutterwave', 'normal', '0', 'true', '0.0', '0.00', '', 'jMF4RWTW14dfJxlusZ22jGeCLdc8i3416CNiw2ny4l8kGBILQDTrhLtCsDxmb1MfBQA6xGh5BhQBrOXCUBB8lQMZrCaJQykG3Nxbv0ADFUSJiNewq7kbSkxyR3rCbbVjhBYMtWt6dpJTB78CafpA6T', '', '', '', 'no', 'flutterwave.png', '', 'no', '', '', '', '', '', NULL, NULL, NULL, NULL, 0, 0),
+(9, 'Mollie', 'normal', '0', 'true', '0.0', '0.00', '', 'EqvhQZimw0L3zWQ35AV93iDOqgQnkXV9cqLnIvgsnz2zRLpjeZUv5JnC3QzTjtctYuVmzuo06N31tLCRPFJNkomdh7Rhk2zxe68GzgWsL1hc6YEM5V5W6JVnqwQfAzNGZkY6ZRFKmZCMbFQXOF3WkR', '', '', '', 'no', 'mollie.png', '', 'no', '', '', '', '', '', NULL, NULL, NULL, NULL, 0, 0),
+(10, 'Razorpay', 'normal', '0', 'true', '0.0', '0.00', '', 'PsNqGq2rlLjo4AaTTsJpxshttwFFrLXjaKcwwQeG2r8aekDoETl9OG1cqND9PluycCfXazyzUiLo7ZFWs2tBWYwOpGcM8i5ID93Kr7Y6l79XrBcST56QONVpEcAuLRs36Z2t1Q1MBlR315c6vSpAFX', '', '', '', 'no', 'razorpay.png', '', 'no', '', '', '', '', '', NULL, NULL, NULL, NULL, 0, 0),
+(11, 'Coinbase', 'normal', '0', 'true', '0.0', '0.00', '', 'sjuRSAj4VdjaBx2bcdXgDbvTdpiHJF40CNsX5vqw4VaaaohvDS48Oc30N6DAxIxChfd2qWQ99q6e11E90OOKwmo0RbXUv3fdpPksWMvJUkm8i7F5ajbsy0LbjqyidUBqJP0BG6H3NkidnbhtfcDF45', '', '', '', 'no', 'coinbase.png', '', 'no', '', '', '', '', '', NULL, NULL, NULL, NULL, 0, 0),
+(12, 'NowPayments', 'normal', '0', 'true', '0.0', '0.00', '', '4DPdFIbqqPqI8XjseCCV1RRVwVuuQx6WtYdHIkMDtxgUKCQaS9Mqww4WUwa6fIxn7NN9ediLstZyIYQQIIt9l6rUANRSzrUVt86J5FopCkZHvysC8CMRBS3LOnKDbNHiUmVh91CkmvjiwCrFApfrtH', '', '', '', 'no', 'nowpayments.png', '', 'no', '', '', '', '', '', NULL, NULL, NULL, NULL, 0, 0),
+(13, 'Cardinity', 'card', '0', 'true', '0.0', '0.00', '', '0DBObWPPA7adVNLvhRC1YwZBANmK4i0PBREfPzyuG0IdJn1qP0X5jkIPsMNCAXh3plFI8IRXm0onNNjPPWnCqoOP89ZCG3ycIYLwX9x6kxYBW8vci5BGFgCG3BTGI7ytEkLnxz9BuJV1N9XfhDexPd', '', '', '', 'yes', '', '', 'yes', '', '', '', '', '', NULL, NULL, NULL, NULL, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -1057,7 +1152,8 @@ CREATE TABLE `purchases` (
   `address` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `city` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `zip` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `phone` char(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+  `phone` char(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `expired_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1120,6 +1216,7 @@ CREATE TABLE `reports` (
   `report_id` int(10) UNSIGNED NOT NULL,
   `type` varchar(100) NOT NULL,
   `reason` varchar(100) NOT NULL,
+  `message` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -1339,6 +1436,7 @@ CREATE TABLE `stripe_state_tokens` (
 
 CREATE TABLE `subscriptions` (
   `id` bigint(20) UNSIGNED NOT NULL,
+  `creator_id` bigint(20) UNSIGNED NOT NULL,
   `user_id` bigint(20) UNSIGNED NOT NULL,
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `stripe_id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1357,6 +1455,20 @@ CREATE TABLE `subscriptions` (
   `interval` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'monthly',
   `taxes` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `payment_id` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `subscription_deleteds`
+--
+
+CREATE TABLE `subscription_deleteds` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `creator_id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1412,7 +1524,7 @@ CREATE TABLE `transactions` (
   `earning_net_user` decimal(10,2) NOT NULL,
   `earning_net_admin` decimal(10,2) NOT NULL,
   `payment_gateway` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `approved` enum('0','1','2') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '1' COMMENT '0 Pending, 1 Success, 2 Canceled',
+  `approved` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '1' COMMENT '0 Pending, 1 Success, 2 Canceled',
   `amount` float NOT NULL,
   `type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'subscription',
   `percentage_applied` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -1452,7 +1564,10 @@ CREATE TABLE `updates` (
   `fixed_post` enum('0','1') NOT NULL DEFAULT '0',
   `price` decimal(10,2) NOT NULL,
   `status` char(20) NOT NULL DEFAULT 'active',
-  `video_views` bigint(20) UNSIGNED NOT NULL
+  `video_views` bigint(20) UNSIGNED NOT NULL,
+  `ip` varchar(200) DEFAULT NULL,
+  `scheduled_date` timestamp NULL DEFAULT NULL,
+  `schedule` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -1562,15 +1677,23 @@ CREATE TABLE `users` (
   `reddit` varchar(200) NOT NULL,
   `spotify` varchar(200) NOT NULL,
   `posts_privacy` tinyint(1) NOT NULL DEFAULT 1,
-  `document_id` varchar(100) NOT NULL
+  `document_id` varchar(100) NOT NULL,
+  `crypto_wallet` varchar(255) NOT NULL,
+  `threads` varchar(200) NOT NULL,
+  `allow_live_streaming_private` enum('on','off') NOT NULL DEFAULT 'off',
+  `price_live_streaming_private` decimal(10,2) DEFAULT NULL,
+  `allow_dm` tinyint(1) NOT NULL DEFAULT 1,
+  `welcome_message_new_subs` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `send_welcome_message` tinyint(1) NOT NULL DEFAULT 0,
+  `price_welcome_message` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- Volcado de datos para la tabla `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `username`, `countries_id`, `password`, `email`, `date`, `avatar`, `cover`, `status`, `role`, `permission`, `remember_token`, `token`, `confirmation_code`, `paypal_account`, `payment_gateway`, `bank`, `featured`, `featured_date`, `about`, `story`, `profession`, `oauth_uid`, `oauth_provider`, `categories_id`, `website`, `stripe_id`, `pm_type`, `pm_last_four`, `trial_ends_at`, `price`, `balance`, `verified_id`, `address`, `city`, `zip`, `facebook`, `twitter`, `instagram`, `youtube`, `pinterest`, `github`, `last_seen`, `email_new_subscriber`, `plan`, `notify_new_subscriber`, `notify_liked_post`, `notify_commented_post`, `company`, `post_locked`, `ip`, `dark_mode`, `gender`, `birthdate`, `allow_download_files`, `language`, `free_subscription`, `wallet`, `tiktok`, `snapchat`, `paystack_plan`, `paystack_authorization_code`, `paystack_last4`, `paystack_exp`, `paystack_card_brand`, `notify_new_tip`, `hide_profile`, `hide_last_seen`, `last_login`, `hide_count_subscribers`, `hide_my_country`, `show_my_birthdate`, `notify_new_post`, `notify_email_new_post`, `custom_fee`, `hide_name`, `birthdate_changed`, `email_new_tip`, `email_new_ppv`, `notify_new_ppv`, `active_status_online`, `payoneer_account`, `zelle_account`, `notify_liked_comment`, `permissions`, `blocked_countries`, `two_factor_auth`, `notify_live_streaming`, `notify_mentions`, `stripe_connect_id`, `completed_stripe_onboarding`, `device_token`, `telegram`, `vk`, `twitch`, `discord`, `reddit`, `spotify`, `posts_privacy`, `document_id`) VALUES
-(1, 'Admin', 'Admin', '1', '$2y$10$U3BsZ5Xx/MpiZLl2N54t8OP0h1EdWOQEDuzO/tAVwKM4AF/nAn9Tu', 'admin@example.com', '2021-03-13 08:01:01', 'default.jpg', '', 'active', 'admin', 'all', 'J5gmAUsBx9fwONd3Ms6PldgF3B0y8OmW6rcdkbtkdkcYlUnhJUsNXOTsS7ih', 'Wy4VkAl2dxHb9WHoXjTowSGPXFPnEQHca6RBe2yeqqmRafs0hSbCEobhNkZZAbCDIru60ceLzAAOI3fj', '', '', '', '', 'yes', '2019-02-21 03:25:00', '', 'Welcome to my page. If you like my content, please consider support. Any donation will be well received. Thank you for your support!', '', '', '', '0', '', NULL, NULL, NULL, NULL, '0.00', '0.00', 'yes', '', '', '', '', '', '', '', '', '', '2023-08-11 21:32:00', 'yes', '', 'yes', 'yes', 'yes', '', 'yes', '', 'off', '', '', 'no', '', 'no', '0.00', '', '', '', '', 0, '', '', 'yes', 'no', 'no', '', 'no', 'no', 'no', 'yes', 'no', 0, 'no', 'no', 'yes', 'yes', 'yes', 'yes', '', '', 'yes', 'full_access', '', 'no', 'yes', 'yes', NULL, 0, NULL, '', '', '', '', '', '', 1, '');
+INSERT INTO `users` (`id`, `name`, `username`, `countries_id`, `password`, `email`, `date`, `avatar`, `cover`, `status`, `role`, `permission`, `remember_token`, `token`, `confirmation_code`, `paypal_account`, `payment_gateway`, `bank`, `featured`, `featured_date`, `about`, `story`, `profession`, `oauth_uid`, `oauth_provider`, `categories_id`, `website`, `stripe_id`, `pm_type`, `pm_last_four`, `trial_ends_at`, `price`, `balance`, `verified_id`, `address`, `city`, `zip`, `facebook`, `twitter`, `instagram`, `youtube`, `pinterest`, `github`, `last_seen`, `email_new_subscriber`, `plan`, `notify_new_subscriber`, `notify_liked_post`, `notify_commented_post`, `company`, `post_locked`, `ip`, `dark_mode`, `gender`, `birthdate`, `allow_download_files`, `language`, `free_subscription`, `wallet`, `tiktok`, `snapchat`, `paystack_plan`, `paystack_authorization_code`, `paystack_last4`, `paystack_exp`, `paystack_card_brand`, `notify_new_tip`, `hide_profile`, `hide_last_seen`, `last_login`, `hide_count_subscribers`, `hide_my_country`, `show_my_birthdate`, `notify_new_post`, `notify_email_new_post`, `custom_fee`, `hide_name`, `birthdate_changed`, `email_new_tip`, `email_new_ppv`, `notify_new_ppv`, `active_status_online`, `payoneer_account`, `zelle_account`, `notify_liked_comment`, `permissions`, `blocked_countries`, `two_factor_auth`, `notify_live_streaming`, `notify_mentions`, `stripe_connect_id`, `completed_stripe_onboarding`, `device_token`, `telegram`, `vk`, `twitch`, `discord`, `reddit`, `spotify`, `posts_privacy`, `document_id`, `crypto_wallet`, `threads`, `allow_live_streaming_private`, `price_live_streaming_private`, `allow_dm`, `welcome_message_new_subs`, `send_welcome_message`, `price_welcome_message`) VALUES
+(1, 'Admin', 'Admin', '1', '$2y$10$U3BsZ5Xx/MpiZLl2N54t8OP0h1EdWOQEDuzO/tAVwKM4AF/nAn9Tu', 'admin@example.com', '2021-03-13 08:01:01', 'default.jpg', '', 'active', 'admin', 'all', 'J5gmAUsBx9fwONd3Ms6PldgF3B0y8OmW6rcdkbtkdkcYlUnhJUsNXOTsS7ih', 'Wy4VkAl2dxHb9WHoXjTowSGPXFPnEQHca6RBe2yeqqmRafs0hSbCEobhNkZZAbCDIru60ceLzAAOI3fj', '', '', '', '', 'yes', '2019-02-21 03:25:00', '', 'Welcome to my page. If you like my content, please consider support. Any donation will be well received. Thank you for your support!', '', '', '', '0', '', NULL, NULL, NULL, NULL, '0.00', '0.00', 'yes', '', '', '', '', '', '', '', '', '', '2023-11-30 08:43:48', 'yes', '', 'yes', 'yes', 'yes', '', 'yes', '', 'off', '', '', 'no', '', 'no', '0.00', '', '', '', '', 0, '', '', 'yes', 'no', 'no', '', 'no', 'no', 'no', 'yes', 'no', 0, 'no', 'no', 'yes', 'yes', 'yes', 'yes', '', '', 'yes', 'full_access', '', 'no', 'yes', 'yes', NULL, 0, NULL, '', '', '', '', '', '', 1, '', '', '', 'off', NULL, 1, '', 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -1650,6 +1773,24 @@ CREATE TABLE `withdrawals` (
 --
 ALTER TABLE `admin_settings`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `advertisings`
+--
+ALTER TABLE `advertisings`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `clicks` (`clicks`),
+  ADD KEY `impressions` (`impressions`),
+  ADD KEY `expired_at` (`expired_at`);
+
+--
+-- Indices de la tabla `ad_click_impressions`
+--
+ALTER TABLE `ad_click_impressions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `advertisings_id` (`advertisings_id`),
+  ADD KEY `type` (`type`),
+  ADD KEY `ip` (`ip`);
 
 --
 -- Indices de la tabla `blogs`
@@ -1765,7 +1906,23 @@ ALTER TABLE `live_online_users`
 --
 ALTER TABLE `live_streamings`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `live_streamings_user_id_index` (`user_id`);
+  ADD KEY `live_streamings_user_id_index` (`user_id`),
+  ADD KEY `type` (`type`),
+  ADD KEY `buyer_id` (`buyer_id`),
+  ADD KEY `minutes` (`minutes`),
+  ADD KEY `joined_at` (`joined_at`),
+  ADD KEY `token` (`token`),
+  ADD KEY `updated_at` (`updated_at`);
+
+--
+-- Indices de la tabla `live_streaming_private_requests`
+--
+ALTER TABLE `live_streaming_private_requests`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `transaction_id` (`transaction_id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `creator_id` (`creator_id`),
+  ADD KEY `minutes` (`minutes`);
 
 --
 -- Indices de la tabla `login_sessions`
@@ -1782,7 +1939,8 @@ ALTER TABLE `media`
   ADD KEY `media_user_id_index` (`user_id`),
   ADD KEY `media_type_index` (`type`),
   ADD KEY `media_token_index` (`token`),
-  ADD KEY `media_encoded_index` (`encoded`);
+  ADD KEY `media_encoded_index` (`encoded`),
+  ADD KEY `job_id` (`job_id`);
 
 --
 -- Indices de la tabla `media_messages`
@@ -1792,7 +1950,8 @@ ALTER TABLE `media_messages`
   ADD KEY `media_messages_messages_id_index` (`messages_id`),
   ADD KEY `media_messages_type_index` (`type`),
   ADD KEY `media_messages_token_index` (`token`),
-  ADD KEY `media_messages_encoded_index` (`encoded`);
+  ADD KEY `media_messages_encoded_index` (`encoded`),
+  ADD KEY `job_id` (`job_id`);
 
 --
 -- Indices de la tabla `media_products`
@@ -1808,7 +1967,19 @@ ALTER TABLE `media_stories`
   ADD PRIMARY KEY (`id`),
   ADD KEY `media_stories_stories_id_index` (`stories_id`),
   ADD KEY `media_stories_name_index` (`name`),
-  ADD KEY `media_stories_type_index` (`type`);
+  ADD KEY `media_stories_type_index` (`type`),
+  ADD KEY `job_id` (`job_id`);
+
+--
+-- Indices de la tabla `media_welcome_messages`
+--
+ALTER TABLE `media_welcome_messages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `media_welcome_messages_creator_id_index` (`creator_id`),
+  ADD KEY `media_welcome_messages_type_index` (`type`),
+  ADD KEY `media_welcome_messages_encoded_index` (`encoded`),
+  ADD KEY `media_welcome_messages_token_index` (`token`),
+  ADD KEY `job_id` (`job_id`);
 
 --
 -- Indices de la tabla `messages`
@@ -1885,7 +2056,8 @@ ALTER TABLE `purchases`
   ADD PRIMARY KEY (`id`),
   ADD KEY `purchases_transactions_id_index` (`transactions_id`),
   ADD KEY `purchases_user_id_index` (`user_id`),
-  ADD KEY `purchases_products_id_index` (`products_id`);
+  ADD KEY `purchases_products_id_index` (`products_id`),
+  ADD KEY `expired_at` (`expired_at`);
 
 --
 -- Indices de la tabla `referrals`
@@ -2004,7 +2176,16 @@ ALTER TABLE `subscriptions`
   ADD KEY `stripe_status` (`stripe_status`),
   ADD KEY `stripe_id` (`stripe_id`),
   ADD KEY `stripe_price` (`stripe_price`),
-  ADD KEY `free` (`free`);
+  ADD KEY `free` (`free`),
+  ADD KEY `creator_id` (`creator_id`);
+
+--
+-- Indices de la tabla `subscription_deleteds`
+--
+ALTER TABLE `subscription_deleteds`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `subscription_deleteds_creator_id_index` (`creator_id`),
+  ADD KEY `subscription_deleteds_user_id_index` (`user_id`);
 
 --
 -- Indices de la tabla `subscription_items`
@@ -2108,6 +2289,18 @@ ALTER TABLE `admin_settings`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT de la tabla `advertisings`
+--
+ALTER TABLE `advertisings`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `ad_click_impressions`
+--
+ALTER TABLE `ad_click_impressions`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `blogs`
 --
 ALTER TABLE `blogs`
@@ -2204,10 +2397,16 @@ ALTER TABLE `live_streamings`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `live_streaming_private_requests`
+--
+ALTER TABLE `live_streaming_private_requests`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT de la tabla `login_sessions`
 --
 ALTER TABLE `login_sessions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `media`
@@ -2231,6 +2430,12 @@ ALTER TABLE `media_products`
 -- AUTO_INCREMENT de la tabla `media_stories`
 --
 ALTER TABLE `media_stories`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `media_welcome_messages`
+--
+ALTER TABLE `media_welcome_messages`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
@@ -2261,7 +2466,7 @@ ALTER TABLE `password_resets`
 -- AUTO_INCREMENT de la tabla `payment_gateways`
 --
 ALTER TABLE `payment_gateways`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT de la tabla `pay_per_views`
@@ -2369,6 +2574,12 @@ ALTER TABLE `stripe_state_tokens`
 -- AUTO_INCREMENT de la tabla `subscriptions`
 --
 ALTER TABLE `subscriptions`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT de la tabla `subscription_deleteds`
+--
+ALTER TABLE `subscription_deleteds`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --

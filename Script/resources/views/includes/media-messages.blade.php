@@ -21,7 +21,7 @@
 
 @if ($media->type == 'video')
 	<div class="container-media-msg h-auto">
-		<video class="js-player {{$classInvisible}}" controls style="height: 400px;" @if ($media->video_poster) data-poster="{{ Helper::getFile(config('path.messages').$media->video_poster) }}" @endif>
+		<video class="js-player {{$classInvisible}}" controls style="height: 400px;" @if (!$media->video_poster) preload="metadata" @endif @if ($media->video_poster) preload="none" data-poster="{{ Helper::getFile(config('path.messages').$media->video_poster) }}" @endif>
 		<source src="{{Helper::getFile(config('path.messages').$media->file)}}" type="video/mp4" />
 	</video>
 </div>
@@ -65,8 +65,8 @@
 					</span>
 				@endif
 
-				@if (! $videoPoster)
-					<video playsinline muted class="video-poster-html">
+				@if (! $videoPoster && $media->type == 'video')
+					<video playsinline muted preload="metadata" class="video-poster-html">
 						<source src="{{ $urlMedia }}" type="video/mp4" />
 					</video>
 				@endif
@@ -88,7 +88,7 @@
 
 	@if ($media->type == 'music')
 	<div class="wrapper-media-music @if ($mediaCount >= 2) mt-2 @endif">
-		<audio class="js-player {{$classInvisible}}" controls>
+		<audio class="js-player {{$classInvisible}}" preload="metadata" controls>
 		<source src="{{Helper::getFile(config('path.messages').$media->file)}}" type="audio/mp3">
 		Your browser does not support the audio tag.
 	</audio>

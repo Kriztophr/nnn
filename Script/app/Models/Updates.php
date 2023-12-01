@@ -68,10 +68,11 @@ class Updates extends Model
                 'updates.fixed_post',
                 'updates.price',
                 'updates.status',
-                'updates.video_views'
+                'updates.video_views',
+				'updates.scheduled_date'
                 )
           ->with([
-            'creator:id,name,username,avatar,hide_name,verified_id,plan,free_subscription', 
+            'creator:id,name,username,avatar,hide_name,verified_id,plan,free_subscription,cover', 
             'creator.plans:user_id,name,status', 
             'media', 
             'comments:id,updates_id',
@@ -91,7 +92,8 @@ class Updates extends Model
 		'updates.fixed_post',
 		'updates.price',
 		'updates.status',
-		'updates.video_views'
+		'updates.video_views',
+		'updates.scheduled_date'
 	  );
 	}
 
@@ -101,5 +103,4 @@ class Updates extends Model
 			$sql->where('blocked_countries', 'NOT LIKE', '%'.Helper::userCountry().'%')
 		]);
 	}
-
 }

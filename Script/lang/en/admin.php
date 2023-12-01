@@ -104,7 +104,7 @@ return array(
 	'paypal_account_donations'  =>      '* Email to receive donations',
     'languages'                 =>      'Languages',
     'abbreviation'              =>      'Abbreviation',
-    'important_note'            =>      'IMPORTANT: You must place the name of the correct folder located at: resources / lang',
+    'important_note'            =>      'IMPORTANT: You must place the name of the correct folder located at: lang',
     'authorized_to_upload'      =>      'Authorized to upload',
     'user_no_edit'              =>      'It can not be edited from the Admin Panel',
     'not_established'           =>      '- Not established -',

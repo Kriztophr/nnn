@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-bs-theme="{{ auth()->user()->dark_mode == 'on' ? 'dark' : 'light' }}">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -13,26 +13,26 @@
     <script type="text/javascript">
       var URL_BASE = "{{ url('/') }}";
       var url_file_upload = "{{route('upload.image', ['_token' => csrf_token()])}}";
-      var delete_confirm = "{{trans('general.delete_confirm')}}";
-      var yes_confirm = "{{trans('general.yes_confirm')}}";
-      var yes = "{{trans('general.yes')}}";
-      var cancel_confirm = "{{trans('general.cancel_confirm')}}";
+      var delete_confirm = "{{__('general.delete_confirm')}}";
+      var yes_confirm = "{{__('general.yes_confirm')}}";
+      var yes = "{{__('general.yes')}}";
+      var cancel_confirm = "{{__('general.cancel_confirm')}}";
       var timezone = "{{config('app.timezone')}}";
-      var add_tag = "{{ trans("general.add_tag") }}";
-      var choose_image = '{{trans('general.choose_image')}}';
-      var formats_available = "{{ trans('general.formats_available_verification_form_w9', ['formats' => 'JPG, PNG, GIF, SVG']) }}";
-      var cancel_payment = "{!!trans('general.confirm_cancel_payment')!!}";
-      var yes_cancel_payment = "{{trans('general.yes_cancel_payment')}}";
-      var approve_confirm_verification = "{{trans('admin.approve_confirm_verification')}}";
-      var yes_confirm_approve_verification = "{{trans('admin.yes_confirm_approve_verification')}}";
-      var yes_confirm_verification = "{{trans('admin.yes_confirm_verification')}}";
-      var delete_confirm_verification = "{{trans('admin.delete_confirm_verification')}}";
-      var login_as_user_warning = "{{trans('general.login_as_user_warning')}}";
-      var yes_confirm_reject_post = "{{trans('general.yes_confirm_reject_post')}}";
-      var delete_confirm_post = "{{trans('general.delete_confirm_post')}}";
-      var yes_confirm_approve_post = "{{trans('general.yes_confirm_approve_post')}}";
-      var approve_confirm_post = "{{trans('general.approve_confirm_post')}}";
-      var yes_confirm_refund = "{{trans('general.refund')}}";
+      var add_tag = "{{ __("general.add_tag") }}";
+      var choose_image = '{{__('general.choose_image')}}';
+      var formats_available = "{{ __('general.formats_available_verification_form_w9', ['formats' => 'JPG, PNG, GIF, SVG']) }}";
+      var cancel_payment = "{!!__('general.confirm_cancel_payment')!!}";
+      var yes_cancel_payment = "{{__('general.yes_cancel_payment')}}";
+      var approve_confirm_verification = "{{__('admin.approve_confirm_verification')}}";
+      var yes_confirm_approve_verification = "{{__('admin.yes_confirm_approve_verification')}}";
+      var yes_confirm_verification = "{{__('admin.yes_confirm_verification')}}";
+      var delete_confirm_verification = "{{__('admin.delete_confirm_verification')}}";
+      var login_as_user_warning = "{{__('general.login_as_user_warning')}}";
+      var yes_confirm_reject_post = "{{__('general.yes_confirm_reject_post')}}";
+      var delete_confirm_post = "{{__('general.delete_confirm_post')}}";
+      var yes_confirm_approve_post = "{{__('general.yes_confirm_approve_post')}}";
+      var approve_confirm_post = "{{__('general.approve_confirm_post')}}";
+      var yes_confirm_refund = "{{__('general.refund')}}";
      </script>
 
     <style>
@@ -69,24 +69,42 @@
 
               @if (auth()->user()->hasPermission('general'))
               <li class="nav-item">
-                  <a href="#settings" data-bs-toggle="collapse" class="nav-link text-truncate dropdown-toggle @if (request()->is('panel/admin/settings') ||request()->is('panel/admin/settings/limits')) active @endif" @if (request()->is('panel/admin/settings') ||request()->is('panel/admin/settings/limits')) aria-expanded="true" @endif>
+                  <a href="#settings" data-bs-toggle="collapse" class="nav-link text-truncate dropdown-toggle @if (request()->is(['panel/admin/settings', 'panel/admin/settings/limits', 'panel/admin/video/encoding'])) active @endif" @if (request()->is(['panel/admin/settings', 'panel/admin/settings/limits', 'panel/admin/video/encoding'])) aria-expanded="true" @endif>
                       <i class="bi-gear me-2"></i> {{ __('admin.general_settings') }}
                   </a>
               </li><!-- /end list -->
             @endif
 
-              <div class="collapse w-100 @if (request()->is('panel/admin/settings') || request()->is('panel/admin/settings/limits')) show @endif ps-3" id="settings">
+              <div class="collapse w-100 @if (request()->is(['panel/admin/settings', 'panel/admin/settings/limits', 'panel/admin/video/encoding'])) show @endif ps-3" id="settings">
                 <li>
                 <a class="nav-link text-truncate w-100 @if (request()->is('panel/admin/settings')) text-white @endif" href="{{ url('panel/admin/settings') }}">
-                  <i class="bi-chevron-right fs-7 me-1"></i> {{ trans('admin.general') }}
+                  <i class="bi-chevron-right fs-7 me-1"></i> {{ __('admin.general') }}
                   </a>
                 </li>
                 <li>
                 <a class="nav-link text-truncate @if (request()->is('panel/admin/settings/limits')) text-white @endif" href="{{ url('panel/admin/settings/limits') }}">
-                  <i class="bi-chevron-right fs-7 me-1"></i> {{ trans('admin.limits') }}
+                  <i class="bi-chevron-right fs-7 me-1"></i> {{ __('admin.limits') }}
                   </a>
+
+                  <a class="nav-link text-truncate @if (request()->is('panel/admin/video/encoding')) text-white @endif" href="{{ url('panel/admin/video/encoding') }}">
+                    <i class="bi-chevron-right fs-7 me-1"></i> {{ __('general.video_encoding') }}
+                    </a>
                 </li>
               </div><!-- /end collapse settings -->
+
+              @if (auth()->user()->hasPermission('reports'))
+              <li class="nav-item">
+                  <a href="{{ url('panel/admin/reports') }}" class="nav-link text-truncate @if (request()->is('panel/admin/reports')) active @endif">
+                      <i class="bi-flag me-2"></i> 
+
+                      @if ($reports <> 0)
+                        <span class="badge rounded-pill bg-warning text-dark me-1">{{ $reports }}</span>
+                      @endif
+                      
+                      {{ __('admin.reports') }}
+                  </a>
+              </li><!-- /end list -->
+              @endif
 
               @if (auth()->user()->hasPermission('withdrawals'))
               <li class="nav-item">
@@ -168,16 +186,40 @@
               </li><!-- /end list -->
               @endif
 
-            @if (auth()->user()->hasPermission('reports'))
+              @if (auth()->user()->hasPermission('advertising'))
               <li class="nav-item">
-                  <a href="{{ url('panel/admin/reports') }}" class="nav-link text-truncate @if (request()->is('panel/admin/reports')) active @endif">
-                      <i class="bi-flag me-2"></i> 
+                  <a href="{{ url('panel/admin/advertising') }}" class="nav-link text-truncate @if (request()->is('panel/admin/advertising')) active @endif">
+                      <i class="bi-badge-ad me-2"></i> {{ __('general.advertising') }}
+                  </a>
+              </li><!-- /end list -->
+              @endif
 
-                      @if ($reports <> 0)
-                        <span class="badge rounded-pill bg-warning text-dark me-1">{{ $reports }}</span>
-                      @endif
-                      
-                      {{ __('admin.reports') }}
+              @if (auth()->user()->hasPermission('comments_replies'))
+              <li class="nav-item">
+                  <a href="#comments_replies" data-bs-toggle="collapse" class="nav-link text-truncate dropdown-toggle @if (request()->is(['panel/admin/comments', 'panel/admin/replies'])) active @endif" @if (request()->is(['panel/admin/comments', 'panel/admin/replies'])) aria-expanded="true" @endif>
+                      <i class="bi-chat me-2"></i> {{ __('general.comments_replies') }}
+                  </a>
+              </li><!-- /end list -->
+            @endif
+
+              <div class="collapse w-100 @if (request()->is(['panel/admin/comments', 'panel/admin/replies'])) show @endif ps-3" id="comments_replies">
+                <li>
+                <a class="nav-link text-truncate w-100 @if (request()->is('panel/admin/comments')) text-white @endif" href="{{ url('panel/admin/comments') }}">
+                  <i class="bi-chevron-right fs-7 me-1"></i> {{ __('general.comments') }}
+                  </a>
+                </li>
+                <li>
+                <a class="nav-link text-truncate @if (request()->is('panel/admin/replies')) text-white @endif" href="{{ url('panel/admin/replies') }}">
+                  <i class="bi-chevron-right fs-7 me-1"></i> {{ __('general.replies') }}
+                  </a>
+                </li>
+              </div><!-- /end collapse settings -->
+
+
+              @if (auth()->user()->hasPermission('messages'))
+              <li class="nav-item">
+                  <a href="{{ url('panel/admin/messages') }}" class="nav-link text-truncate @if (request()->is('panel/admin/messages')) active @endif">
+                      <i class="bi-send me-2"></i> {{ __('general.messages') }}
                   </a>
               </li><!-- /end list -->
               @endif
@@ -247,6 +289,14 @@
               <li class="nav-item">
                   <a href="{{ url('panel/admin/live-streaming') }}" class="nav-link text-truncate @if (request()->is('panel/admin/live-streaming')) active @endif">
                       <i class="bi-camera-video me-2"></i> {{ __('general.live_streaming') }}
+                  </a>
+              </li><!-- /end list -->
+              @endif
+
+              @if (auth()->user()->hasPermission('live_streaming_private_requests'))
+              <li class="nav-item">
+                  <a href="{{ url('panel/admin/live-streaming-private-requests') }}" title="{{ __('general.live_streaming_private_requests') }}" class="nav-link text-truncate @if (request()->is('panel/admin/live-streaming-private-requests')) active @endif">
+                      <i class="bi-person-video3 me-2"></i> {{ __('general.live_streaming_private_requests') }}
                   </a>
               </li><!-- /end list -->
               @endif
@@ -396,14 +446,14 @@
               <div class="collapse w-100 ps-3 @if (request()->is('panel/admin/payments') || request()->is('panel/admin/payments/*')) show @endif" id="payments">
                 <li>
                 <a class="nav-link text-truncate @if (request()->is('panel/admin/payments')) text-white @endif" href="{{ url('panel/admin/payments') }}">
-                  <i class="bi-chevron-right fs-7 me-1"></i> {{ trans('admin.general') }}
+                  <i class="bi-chevron-right fs-7 me-1"></i> {{ __('admin.general') }}
                   </a>
                 </li>
 
                 @foreach ($paymentsGateways as $key)
                 <li>
                 <a class="nav-link text-truncate @if (request()->is('panel/admin/payments/'.$key->id.'')) text-white @endif" href="{{ url('panel/admin/payments', $key->id) }}">
-                  <i class="bi-chevron-right fs-7 me-1"></i> {{ $key->type == 'bank' ? trans('general.bank_transfer') : $key->name }}
+                  <i class="bi-chevron-right fs-7 me-1"></i> {{ $key->type == 'bank' ? __('general.bank_transfer') : $key->name }}
                   </a>
                 </li>
               @endforeach
@@ -446,14 +496,14 @@
       </div>
   </div>
 
-  <header class="py-3 mb-3 shadow-custom bg-white">
+  <header class="py-3 mb-3 shadow-custom">
 
     <div class="container-fluid d-grid gap-3 px-4 justify-content-end position-relative">
 
       <div class="d-flex align-items-center">
 
         <a class="text-dark ms-2 animate-up-2 me-4" href="{{ url('/') }}">
-        {{ trans('admin.view_site') }} <i class="bi-arrow-up-right"></i>
+        {{ __('admin.view_site') }} <i class="bi-arrow-up-right"></i>
         </a>
 
         <div class="flex-shrink-0 dropdown">
@@ -492,7 +542,7 @@
       </div>
   </div>
 
-  <footer class="admin-footer px-4 py-3 bg-white shadow-custom">
+  <footer class="admin-footer px-4 py-3 shadow-custom">
     &copy; {{ $settings->title }} v{{$settings->version}} - {{ date('Y') }}
   </footer>
 
@@ -512,7 +562,7 @@
           swal({
             title: "{{ session('success_update') }}",
             type: "success",
-            confirmButtonText: "{{ trans('users.ok') }}"
+            confirmButtonText: "{{ __('users.ok') }}"
             });
         </script>
     	 @endif
@@ -520,10 +570,10 @@
 		 @if (session('unauthorized'))
        <script type="text/javascript">
     		swal({
-    			title: "{{ trans('general.error_oops') }}",
+    			title: "{{ __('general.error_oops') }}",
     			text: "{{ session('unauthorized') }}",
     			type: "error",
-    			confirmButtonText: "{{ trans('users.ok') }}"
+    			confirmButtonText: "{{ __('users.ok') }}"
     			});
           </script>
    		 @endif

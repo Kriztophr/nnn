@@ -2,12 +2,26 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class LiveStreamings extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+      'type',
+      'user_id',
+      'buyer_id',
+      'name',
+      'channel',
+      'minutes',
+      'price',
+      'status',
+      'joined_at',
+      'availability',
+      'token',
+    ];
 
     public function user()
   	{
@@ -32,9 +46,11 @@ class LiveStreamings extends Model
 
     public function getTimeElapsedAttribute()
     {
-      $created_at = $this->created_at;
-      $updated_at = $this->updated_at;
+      return $this->updated_at->diffInMinutes($this->created_at);
+    }
 
-      return $updated_at->diffInMinutes($created_at);
+    public function getTimeElapsedLivePrivateAttribute()
+    {
+      return $this->updated_at->diffInMinutes($this->joined_at);
     }
 }

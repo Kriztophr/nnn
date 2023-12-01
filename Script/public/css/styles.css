@@ -1200,14 +1200,16 @@ a:hover.button-avatar-upload {
     line-height: 150px;
     display: none;
 }
+.wraper-cover-upload {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 100;
+}
 .btn-cover-upload {
-    position: absolute;
     color: #FFF;
     padding: 8px 25px;
     background: rgba(0, 0, 0, 0.5);
-    left: 10px;
-    bottom: 10px;
-    z-index: 100;
 }
 .btn-cover-upload:hover,
 .btn-cover-upload:disabled {
@@ -1229,7 +1231,9 @@ a:hover.button-avatar-upload {
   background-color: #FFF;
 }
 .btn-upload {
-  padding: 10px 12px;
+  width: 48px;
+  height: 48px;
+  padding: 0;
 -webkit-transition: all 200ms linear;
   -moz-transition: all 200ms linear;
   -o-transition: all 200ms linear;
@@ -1535,3 +1539,10 @@ display: none;
  .f-size-20 {
    font-size:20px;
  }
+ .truncated {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;  
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -35,7 +35,7 @@ class StripeWebHookController extends WebhookController
             $user->subscriptions->filter(function ($subscription) use ($payload) {
                 return $subscription->stripe_id === $payload['data']['object']['id'];
             })->each(function ($subscription) {
-                $subscription->markAsCancelled();
+                $subscription->markAsCanceled();
             });
         }
         return new Response('Webhook Handled', 200);
@@ -63,12 +63,16 @@ class StripeWebHookController extends WebhookController
             if ($user) {
                 $subscription = Subscription::whereStripeId($object['subscription'])->first();
                 if ($subscription) {
-                    $subscription->stripe_status = "active";
-                    $subscription->interval = $interval;
-                    $subscription->save();
 
                     // User Plan
                     $user = Plans::whereName($subscription->stripe_price)->first();
+
+                    $subscription->stripe_status = "active";
+                    $subscription->creator_id = $user->user()->id;
+                    $subscription->interval = $interval;
+                    $subscription->save();
+
+                    
                     // Get Payment Gateway
                     $payment = PaymentGateways::whereName('Stripe')->firstOrFail();
                     // Admin and user earnings calculation

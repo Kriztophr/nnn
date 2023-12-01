@@ -33,16 +33,16 @@
 						 <fieldset class="row mb-5">
 			         <legend class="col-form-label col-sm-2 pt-0 text-lg-end">{{ __('general.home_style') }}</legend>
 			         <div class="col-sm-10">
-			           <div class="form-check">
+			           <div class="form-check mb-3">
 			             <input class="form-check-input" type="radio" name="home_style" id="radio1" @if ($settings->home_style == 0) checked="checked" @endif value="0">
 			             <label class="form-check-label" for="radio1">
-			               <img src="{{url('/public/img/homepage-1.jpg')}}">
+			               <img class="border" src="{{url('/public/img/homepage-1.jpg')}}">
 			             </label>
 			           </div>
 			           <div class="form-check">
 			             <input class="form-check-input" type="radio" name="home_style" id="radio2" @if ($settings->home_style == 1) checked="checked" @endif value="1">
 			             <label class="form-check-label" for="radio2">
-										 <img src="{{url('/public/img/homepage-2.jpg')}}">
+							<img class="border" src="{{url('/public/img/homepage-2.jpg')}}">
 			             </label>
 			           </div>
 			         </div>
@@ -58,7 +58,7 @@
                 <div class="input-group mb-1">
                   <input name="logo" type="file" class="form-control custom-file rounded-pill">
                 </div>
-                <small class="d-block">{{ __('general.recommended_size') }} 487x144 px (PNG)</small>
+                <small class="d-block">{{ __('general.recommended_size') }} 487x144 px (PNG, SVG)</small>
 		          </div>
 		        </div>
 
@@ -72,9 +72,23 @@
                 <div class="input-group mb-1">
                   <input name="logo_2" type="file" class="form-control custom-file rounded-pill">
                 </div>
-                <small class="d-block">{{ __('general.recommended_size') }} 487x144 px (PNG)</small>
+                <small class="d-block">{{ __('general.recommended_size') }} 487x144 px (PNG, SVG)</small>
 		          </div>
 		        </div>
+
+				<div class="row mb-3">
+					<label class="col-sm-2 col-form-label text-lg-end">{{ __('general.watermak_video') }}</label>
+					<div class="col-lg-5 col-sm-10">
+				  <div class="d-block mb-2">
+					<img src="{{url('/public/img', $settings->watermak_video)}}" class="bg-dark" style="width:150px">
+				  </div>
+  
+				  <div class="input-group mb-1">
+					<input name="watermak_video" type="file" class="form-control custom-file rounded-pill">
+				  </div>
+				  <small class="d-block">{{ __('general.recommended_size') }} 487x144 px (PNG)</small>
+					</div>
+				  </div>
 
             <div class="row mb-3">
 		          <label class="col-sm-2 col-form-label text-lg-end">Favicon</label>

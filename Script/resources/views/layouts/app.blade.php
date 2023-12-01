@@ -13,6 +13,10 @@
   <!-- Favicon -->
   <link href="{{ url('public/img', $settings->favicon) }}" rel="icon">
 
+  @if ($settings->google_tag_manager_head != '')
+  {!! $settings->google_tag_manager_head !!}
+  @endif
+
   @include('includes.css_general')
 
   @if ($settings->status_pwa)
@@ -21,12 +25,16 @@
 
   @yield('css')
 
- @if($settings->google_analytics != '')
+ @if ($settings->google_analytics != '')
   {!! $settings->google_analytics !!}
   @endif
 </head>
 
 <body>
+  @if ($settings->google_tag_manager_body != '')
+  {!! $settings->google_tag_manager_body !!}
+  @endif
+
   @if ($settings->disable_banner_cookies == 'off')
   <div class="btn-block text-center showBanner padding-top-10 pb-3 display-none">
     <i class="fa fa-cookie-bite"></i> {{trans('general.cookies_text')}}
@@ -132,6 +140,10 @@
 
     @if ($settings->live_streaming_status == 'on')
       @include('includes.modal-live-stream')
+    @endif
+
+    @if ($settings->allow_scheduled_posts)
+      @include('includes.modal-scheduled-posts')
     @endif
     
   @endauth

@@ -12,15 +12,15 @@ use App\Models\User;
 use App\Models\Blogs;
 use App\Models\Media;
 use Yabacon\Paystack;
-use App\Models\States;
+use App\Models\Replies;
 use App\Models\Reports;
 use App\Models\Stories;
 use App\Models\Updates;
 use App\Models\Comments;
 use App\Models\Deposits;
+use App\Models\Messages;
 use App\Models\Products;
 use App\Models\TaxRates;
-use App\Models\Countries;
 use App\Models\Purchases;
 use App\Models\Referrals;
 use App\Models\Categories;
@@ -41,10 +41,9 @@ use Illuminate\Support\Facades\DB;
 use App\Notifications\PostRejected;
 use App\Models\ReferralTransactions;
 use App\Models\VerificationRequests;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Notification;
+use App\Models\LiveStreamingPrivateRequest;
 
 
 class AdminController extends Controller
@@ -63,8 +62,8 @@ class AdminController extends Controller
 	 */
 	public function admin()
 	{
-		if (! auth()->user()->hasPermission('dashboard')) {
-				return view('admin.unauthorized');
+		if (!auth()->user()->hasPermission('dashboard')) {
+			return view('admin.unauthorized');
 		}
 
 		$dates = $this->generateDates(Carbon::parse()->startOfMonth(), Carbon::parse()->endOfMonth());
@@ -73,9 +72,9 @@ class AdminController extends Controller
 			->selectRaw('SUM(`earning_net_admin`) as `total`')
 			->where('created_at', '>', Carbon::parse()->startOfMonth())
 			->where('created_at', '<', Carbon::parse()->endOfMonth())
-            ->groupBy('date')
-            ->orderBy('date', 'ASC')
-            ->get()
+			->groupBy('date')
+			->orderBy('date', 'ASC')
+			->get()
 			->pluck('total', 'date');
 
 		$dataChartQuery = $dates->merge($earningsChart);
@@ -108,30 +107,30 @@ class AdminController extends Controller
 		$total_posts = Updates::selectRaw('COUNT(`id`) as `total`')->pluck('total')->first();
 
 		$users = User::select(['id', 'username', 'avatar', 'name', 'status', 'date'])
-			->orderBy('id','DESC')
+			->orderBy('id', 'DESC')
 			->take(4)
 			->get();
 
 		$subscriptions = Subscriptions::with(['subscriber:id,username,avatar,name', 'creator:id,username,name,plan'])
-			->select(['id', 'user_id', 'stripe_price', 'created_at'])
-			->orderBy('id','desc')
+			->select(['id', 'creator_id', 'user_id', 'stripe_price', 'created_at'])
+			->orderBy('id', 'desc')
 			->take(4)
 			->get();
 
 		$withdrawalsPaid = DB::table('withdrawals')
-			->selectRaw('SUM(CASE WHEN MONTH(date_paid) = "'.Carbon::now()->subMonth()->month.'" THEN amount ELSE 0 END) AS lastMonth')
+			->selectRaw('SUM(CASE WHEN MONTH(date_paid) = "' . Carbon::now()->subMonth()->month . '" THEN amount ELSE 0 END) AS lastMonth')
 			->first();
 
 		$revenues = Transactions::whereApproved('1')
-		->selectRaw('SUM(earning_net_admin) AS totalRaisedFunds')
-		->selectRaw('SUM(earning_net_user) AS totalUserRaisedFunds')
-		->selectRaw('SUM(CASE WHEN created_at >= "'.Carbon::today().'" THEN earning_net_admin ELSE 0 END) AS today')
-		->selectRaw('SUM(CASE WHEN created_at >= "'.Carbon::yesterday().'" AND created_at < "'.Carbon::today().'" THEN earning_net_admin ELSE 0 END) AS yesterday')
-		->selectRaw('SUM(CASE WHEN created_at BETWEEN "'.Carbon::parse()->startOfWeek().'" AND "'.Carbon::parse()->endOfWeek().'" THEN earning_net_admin ELSE 0 END) AS week')
-		->selectRaw('SUM(CASE WHEN created_at BETWEEN "'.Carbon::parse()->startOfWeek()->subWeek().'" AND "'.Carbon::parse()->subWeek()->endOfWeek().'" THEN earning_net_admin ELSE 0 END) AS lastWeek')
-		->selectRaw('SUM(CASE WHEN created_at BETWEEN "'.Carbon::parse()->startOfMonth().'" AND "'.Carbon::parse()->endOfMonth().'" THEN earning_net_admin ELSE 0 END) AS month')
-		->selectRaw('SUM(CASE WHEN created_at BETWEEN "'.Carbon::parse()->startOfMonth()->subMonth().'" AND "'.Carbon::parse()->subMonth()->endOfMonth().'" THEN earning_net_admin ELSE 0 END) AS lastMonth')
-		->first();
+			->selectRaw('SUM(earning_net_admin) AS totalRaisedFunds')
+			->selectRaw('SUM(earning_net_user) AS totalUserRaisedFunds')
+			->selectRaw('SUM(CASE WHEN created_at >= "' . Carbon::today() . '" THEN earning_net_admin ELSE 0 END) AS today')
+			->selectRaw('SUM(CASE WHEN created_at >= "' . Carbon::yesterday() . '" AND created_at < "' . Carbon::today() . '" THEN earning_net_admin ELSE 0 END) AS yesterday')
+			->selectRaw('SUM(CASE WHEN created_at BETWEEN "' . Carbon::parse()->startOfWeek() . '" AND "' . Carbon::parse()->endOfWeek() . '" THEN earning_net_admin ELSE 0 END) AS week')
+			->selectRaw('SUM(CASE WHEN created_at BETWEEN "' . Carbon::parse()->startOfWeek()->subWeek() . '" AND "' . Carbon::parse()->subWeek()->endOfWeek() . '" THEN earning_net_admin ELSE 0 END) AS lastWeek')
+			->selectRaw('SUM(CASE WHEN created_at BETWEEN "' . Carbon::parse()->startOfMonth() . '" AND "' . Carbon::parse()->endOfMonth() . '" THEN earning_net_admin ELSE 0 END) AS month')
+			->selectRaw('SUM(CASE WHEN created_at BETWEEN "' . Carbon::parse()->startOfMonth()->subMonth() . '" AND "' . Carbon::parse()->subMonth()->endOfMonth() . '" THEN earning_net_admin ELSE 0 END) AS lastMonth')
+			->first();
 
 		// Total Paid Withdrawals
 		$totalPaidlastMonth = $withdrawalsPaid->lastMonth;
@@ -140,15 +139,15 @@ class AdminController extends Controller
 		$stat_revenue_today = $revenues->today;
 		// Yesterday
 		$stat_revenue_yesterday = $revenues->yesterday;
-		 // Week
-	 	$stat_revenue_week = $revenues->week;
+		// Week
+		$stat_revenue_week = $revenues->week;
 		// Last Week
 		$stat_revenue_last_week = $revenues->lastWeek;
-		 // Month
-	 	$stat_revenue_month = $revenues->month;
+		// Month
+		$stat_revenue_month = $revenues->month;
 		// Last Month
 		$stat_revenue_last_month = $revenues->lastMonth;
-		
+
 		return view('admin.dashboard', [
 			'dataChart' => $dataChart,
 			'users' => $users,
@@ -169,50 +168,49 @@ class AdminController extends Controller
 			'label' => Helper::formatMonth(),
 			'dataChartSubscriptions' => $dataChartSubscriptions
 		]);
-
-	}//<--- END METHOD
+	}
 
 	/**
 	 * Show Members section
 	 *
 	 * @return Response
 	 */
-	 public function index(Request $request)
-	 {
-		 $search = $request->input('q');
-		 $sort  = $request->input('sort');
+	public function index(Request $request)
+	{
+		$search = $request->input('q');
+		$sort  = $request->input('sort');
 
-		 if ($search != '' && strlen( $search ) > 2) {
-			 $data = User::where('name', 'LIKE', '%'.$search.'%')
-			 ->orWhere('username', 'LIKE', '%'.$search.'%')
-			 ->orWhere('email', 'LIKE', '%'.$search.'%')
-			 ->orderBy('id','desc')->paginate(20);
-		 } else {
-			 $data = User::orderBy('id','desc')->paginate(20);
-		 }
+		if ($search != '' && strlen($search) > 2) {
+			$data = User::where('name', 'LIKE', '%' . $search . '%')
+				->orWhere('username', 'LIKE', '%' . $search . '%')
+				->orWhere('email', 'LIKE', '%' . $search . '%')
+				->orderBy('id', 'desc')->paginate(20);
+		} else {
+			$data = User::orderBy('id', 'desc')->paginate(20);
+		}
 
-		 if (request('sort') == 'admins') {
-			 $data = User::whereRole('admin')->orderBy('id','desc')->paginate(20);
-		 }
+		if (request('sort') == 'admins') {
+			$data = User::whereRole('admin')->orderBy('id', 'desc')->paginate(20);
+		}
 
-		 if (request('sort') == 'creators') {
-			 $data = User::where('verified_id', 'yes')->orderBy('id','desc')->paginate(20);
-		 }
+		if (request('sort') == 'creators') {
+			$data = User::where('verified_id', 'yes')->orderBy('id', 'desc')->paginate(20);
+		}
 
-		 if (request('sort') == 'email_pending') {
-			 $data = User::whereStatus('pending')->orderBy('id','desc')->paginate(20);
-		 }
+		if (request('sort') == 'email_pending') {
+			$data = User::whereStatus('pending')->orderBy('id', 'desc')->paginate(20);
+		}
 
-		 if (request('sort') == 'balance') {
-			$data = User::orderBy('balance','desc')->paginate(20);
+		if (request('sort') == 'balance') {
+			$data = User::orderBy('balance', 'desc')->paginate(20);
 		}
 
 		if (request('sort') == 'wallet') {
-			$data = User::orderBy('wallet','desc')->paginate(20);
+			$data = User::orderBy('wallet', 'desc')->paginate(20);
 		}
 
-		 return view('admin.members', ['data' => $data, 'query' => $search, 'sort' => $sort]);
-	 }
+		return view('admin.members', ['data' => $data, 'query' => $search, 'sort' => $sort]);
+	}
 
 	public function edit($id)
 	{
@@ -222,27 +220,26 @@ class AdminController extends Controller
 			\Session::flash('info_message', __('admin.user_no_edit'));
 			return redirect('panel/admin/members');
 		}
-    	return view('admin.edit-member')->withUser($user);
-
-	}//<--- End Method
+		return view('admin.edit-member')->withUser($user);
+	}
 
 	public function update($id, Request $request)
 	{
 		$request->validate([
-			'email' => 'required|email|max:255|unique:users,email,'.$id,
+			'email' => 'required|email|max:255|unique:users,email,' . $id,
 		]);
 
-    $user = User::findOrFail($id);
+		$user = User::findOrFail($id);
 
-		 if ($request->featured == 'yes' && $user->featured == 'no') {
-			 $featured_date = Carbon::now();
-		 } else {
-			 $featured_date = $user->featured_date;
-		 }
+		if ($request->featured == 'yes' && $user->featured == 'no') {
+			$featured_date = Carbon::now();
+		} else {
+			$featured_date = $user->featured_date;
+		}
 
-		 if ($request->featured == 'no' && $user->featured == 'yes') {
-			 $featured_date = null;
-		 }
+		if ($request->featured == 'no' && $user->featured == 'yes') {
+			$featured_date = null;
+		}
 
 		$user->email = $request->email;
 		$user->verified_id = $request->verified;
@@ -252,35 +249,33 @@ class AdminController extends Controller
 		$user->featured_date = $featured_date;
 		$user->balance = $request->balance;
 		$user->wallet = $request->wallet;
-    $user->save();
+		$user->save();
 
-    \Session::flash('success_message', __('admin.success_update'));
+		\Session::flash('success_message', __('admin.success_update'));
 
-    return redirect('panel/admin/members');
-
-	}//<--- End Method
+		return redirect('panel/admin/members');
+	}
 
 	public function destroy($id)
 	{
 		// Find User
-    $user = User::findOrFail($id);
+		$user = User::findOrFail($id);
 
-  	if ($user->isSuperAdmin() || $user->id == auth()->user()->id) {
+		if ($user->isSuperAdmin() || $user->id == auth()->user()->id) {
 			return redirect('panel/admin/members');
 		}
 
 		$this->deleteUser($id);
 
 		return redirect('panel/admin/members');
-
-    }//<--- End Method
+	}
 
 	public function settings()
 	{
 		$genders = explode(',', $this->settings->genders);
 
 		return view('admin.settings', ['genders' => $genders]);
-	}//<--- END METHOD
+	}
 
 	public function saveSettings(Request $request)
 	{
@@ -292,7 +287,7 @@ class AdminController extends Controller
 		}
 
 		// Verify captcha API keys exists
-		if ($request->captcha || $request->captcha_contact ) {
+		if ($request->captcha || $request->captcha_contact) {
 			if (config('captcha.sitekey') == '' && config('captcha.secret') == '') {
 				return back()->withErrors([
 					'errors' => __('general.error_active_captcha'),
@@ -314,8 +309,8 @@ class AdminController extends Controller
 		], $messages);
 
 		if (isset($request->genders)) {
-				$genders = implode( ',', $request->genders);
-			}
+			$genders = implode(',', $request->genders);
+		}
 
 		$sql                      = $this->settings;
 		$sql->title               = $request->title;
@@ -342,9 +337,7 @@ class AdminController extends Controller
 		$sql->disable_banner_cookies = $request->disable_banner_cookies ?? 'off';
 		$sql->captcha_contact = $request->captcha_contact ?? 'off';
 		$sql->disable_tips = $request->disable_tips ?? 'off';
-		$sql->watermark_on_videos = $request->watermark_on_videos ?? 'off';
 		$sql->referral_system = $request->referral_system ?? 'off';
-		$sql->video_encoding = $request->video_encoding ?? 'off';
 		$sql->disable_contact = $request->disable_contact;
 		$sql->disable_new_post_notification = $request->disable_new_post_notification;
 		$sql->disable_search_creators = $request->disable_search_creators;
@@ -353,13 +346,14 @@ class AdminController extends Controller
 		$sql->autofollow_admin = $request->autofollow_admin;
 		$sql->allow_zip_files = $request->allow_zip_files;
 		$sql->zip_verification_creator = $request->zip_verification_creator;
+		$sql->allow_scheduled_posts = $request->allow_scheduled_posts;
 		$sql->save();
 
 		// Default locale
 		Helper::envUpdate('DEFAULT_LOCALE', $request->default_language);
 
 		// App Name
-		Helper::envUpdate('APP_NAME', ' "'.$request->title.'" ', true);
+		Helper::envUpdate('APP_NAME', ' "' . $request->title . '" ', true);
 
 		// APP Debug
 		$path = base_path('.env');
@@ -372,18 +366,19 @@ class AdminController extends Controller
 
 		if (file_exists($path)) {
 			file_put_contents($path, str_replace(
-					$APP_DEBUG, 'APP_DEBUG=' . $request->app_debug, file_get_contents($path)
+				$APP_DEBUG,
+				'APP_DEBUG=' . $request->app_debug,
+				file_get_contents($path)
 			));
 		}
 
 		return redirect('panel/admin/settings')->withSuccessMessage(__('admin.success_update'));
-
-	}//<--- END METHOD
+	}
 
 	public function settingsLimits()
 	{
 		return view('admin.limits')->withSettings($this->settings);
-	}//<--- END METHOD
+	}
 
 	public function saveSettingsLimits(Request $request)
 	{
@@ -404,9 +399,8 @@ class AdminController extends Controller
 
 		\Session::flash('success_message', __('admin.success_update'));
 
-    	return redirect('panel/admin/settings/limits');
-
-	}//<--- END METHOD
+		return redirect('panel/admin/settings/limits');
+	}
 
 	public function maintenanceMode(Request $request)
 	{
@@ -416,7 +410,7 @@ class AdminController extends Controller
 			\Artisan::call('down', [
 				'--secret' => $strRandom
 			]);
-		} elseif (auth()->user()->isSuperAdmin() && ! $request->maintenance_mode) {
+		} elseif (auth()->user()->isSuperAdmin() && !$request->maintenance_mode) {
 			\Artisan::call('up');
 		}
 
@@ -425,40 +419,40 @@ class AdminController extends Controller
 
 		if ($request->maintenance_mode) {
 			return redirect($strRandom)
-			->withSuccessMessage(__('admin.maintenance_mode_on'));
+				->withSuccessMessage(__('admin.maintenance_mode_on'));
 		} else {
 			return redirect('panel/admin/maintenance/mode')
-			->withSuccessMessage(__('admin.maintenance_mode_off'));
+				->withSuccessMessage(__('admin.maintenance_mode_off'));
 		}
-
-	}//<--- END METHOD
+	}
 
 	public function profiles_social()
 	{
 		return view('admin.profiles-social')->withSettings($this->settings);
-	}//<--- End Method
+	}
 
 	public function update_profiles_social(Request $request)
 	{
 		$sql = AdminSettings::find(1);
 
 		$rules = array(
-						'facebook'   => 'url',
-            'twitter'    => 'url',
-            'instagram' => 'url',
-						'linkedin' => 'url',
-            'youtube'    => 'url',
-						'pinterest'  => 'url',
-						'tiktok'     => 'url',
-						'telegram'   => 'url',
-						'reddit'     => 'url',
-						'snapchat'   => 'url',
-						'github'   => 'url',
-        );
+			'facebook'   => 'url',
+			'twitter'    => 'url',
+			'instagram' => 'url',
+			'linkedin' => 'url',
+			'youtube'    => 'url',
+			'pinterest'  => 'url',
+			'tiktok'     => 'url',
+			'telegram'   => 'url',
+			'reddit'     => 'url',
+			'snapchat'   => 'url',
+			'github'   => 'url',
+			'threads'   => 'url',
+		);
 
 		$this->validate($request, $rules);
 
-	  $sql->facebook  = $request->facebook;
+		$sql->facebook  = $request->facebook;
 		$sql->twitter   = $request->twitter;
 		$sql->instagram = $request->instagram;
 		$sql->linkedin  = $request->linkedin;
@@ -469,34 +463,34 @@ class AdminController extends Controller
 		$sql->reddit    = $request->reddit;
 		$sql->snapchat  = $request->snapchat;
 		$sql->github    = $request->github;
+		$sql->threads    = $request->threads;
 
 		$sql->save();
 
-	    \Session::flash('success_message', __('admin.success_update'));
+		\Session::flash('success_message', __('admin.success_update'));
 
-	    return redirect('panel/admin/profiles-social');
-	}//<--- End Method
+		return redirect('panel/admin/profiles-social');
+	}
 
 	public function subscriptions()
 	{
-		$data = Subscriptions::orderBy('id','DESC')->paginate(50);
+		$data = Subscriptions::orderBy('id', 'DESC')->paginate(50);
 
 		return view('admin.subscriptions', ['data' => $data]);
-
-	}//<--- End Method
+	}
 
 	public function transactions(Request $request)
 	{
 		$query = $request->input('q');
 
 		if ($query != '' && strlen($query) > 2) {
-			$data = Transactions::where('txn_id', 'LIKE', '%'.$query.'%')->orderBy('id','DESC')->paginate(50);
+			$data = Transactions::where('txn_id', 'LIKE', '%' . $query . '%')->orderBy('id', 'DESC')->paginate(50);
 		} else {
-			$data = Transactions::orderBy('id','DESC')->paginate(50);
+			$data = Transactions::orderBy('id', 'DESC')->paginate(50);
 		}
 
 		return view('admin.transactions', ['data' => $data]);
-	}//<--- End Method
+	}
 
 	public function cancelTransaction($id)
 	{
@@ -508,53 +502,53 @@ class AdminController extends Controller
 		switch ($transaction->payment_gateway) {
 			case 'Stripe':
 
-			if (isset($subscription)) {
-				$stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
-				$stripe->subscriptions->cancel($subscription->stripe_id, []);
-			}
+				if (isset($subscription)) {
+					$stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
+					$stripe->subscriptions->cancel($subscription->stripe_id, []);
+				}
 
-			break;
+				break;
 
 			case 'Paystack':
-			if (isset($subscription)) {
-				$payment = PaymentGateways::whereId(4)->whereName('Paystack')->whereEnabled(1)->first();
+				if (isset($subscription)) {
+					$payment = PaymentGateways::whereName('Paystack')->whereEnabled(1)->first();
 
-				$curl = curl_init();
+					$curl = curl_init();
 
-				curl_setopt_array($curl, array(
-					CURLOPT_URL => "https://api.paystack.co/subscription/".$id,
-					CURLOPT_RETURNTRANSFER => true,
-					CURLOPT_ENCODING => "",
-					CURLOPT_MAXREDIRS => 10,
-					CURLOPT_TIMEOUT => 30,
-					CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-					CURLOPT_CUSTOMREQUEST => "GET",
-					CURLOPT_HTTPHEADER => array(
-						"Authorization: Bearer ".$payment->key_secret,
-						"Cache-Control: no-cache",
-					),
-				));
+					curl_setopt_array($curl, array(
+						CURLOPT_URL => "https://api.paystack.co/subscription/" . $id,
+						CURLOPT_RETURNTRANSFER => true,
+						CURLOPT_ENCODING => "",
+						CURLOPT_MAXREDIRS => 10,
+						CURLOPT_TIMEOUT => 30,
+						CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+						CURLOPT_CUSTOMREQUEST => "GET",
+						CURLOPT_HTTPHEADER => array(
+							"Authorization: Bearer " . $payment->key_secret,
+							"Cache-Control: no-cache",
+						),
+					));
 
-				$response = curl_exec($curl);
-				$err = curl_error($curl);
-				curl_close($curl);
+					$response = curl_exec($curl);
+					$err = curl_error($curl);
+					curl_close($curl);
 
-				if ($err) {
-					throw new \Exception("cURL Error #:" . $err);
-				} else {
-					 $result = json_decode($response);
+					if ($err) {
+						throw new \Exception("cURL Error #:" . $err);
+					} else {
+						$result = json_decode($response);
+					}
+
+					// initiate the Library's Paystack Object
+					$paystack = new Paystack($payment->key_secret);
+
+					$paystack->subscription->disable([
+						'code' => $subscription->subscription_id,
+						'token' => $result->data->email_token
+					]);
 				}
 
-				// initiate the Library's Paystack Object
-				$paystack = new Paystack($payment->key_secret);
-
-				$paystack->subscription->disable([
-									'code'=> $subscription->subscription_id,
-									'token'=> $result->data->email_token
-								]);
-				}
-
-			break;
+				break;
 		}
 
 		if (isset($subscription)) {
@@ -572,7 +566,7 @@ class AdminController extends Controller
 
 		\Session::flash('success_message', __('admin.success_update'));
 
-    return redirect('panel/admin/transactions');
+		return redirect('panel/admin/transactions');
 	}
 
 
@@ -581,7 +575,7 @@ class AdminController extends Controller
 		$stripeConnectCountries = explode(',', $this->settings->stripe_connect_countries);
 
 		return view('admin.payments-settings')->withStripeConnectCountries($stripeConnectCountries);
-	}//<--- End Method
+	}
 
 	public function savePayments(Request $request)
 	{
@@ -599,18 +593,18 @@ class AdminController extends Controller
 		];
 
 		$rules = [
-						'currency_code' => 'required|alpha',
-						'currency_symbol' => 'required',
-						'min_subscription_amount' => 'required|numeric|min:1',
-						'max_subscription_amount' => 'required|numeric|min:1',
-						'stripe_connect_countries' => Rule::requiredIf($request->stripe_connect == 1)
-        ];
+			'currency_code' => 'required|alpha',
+			'currency_symbol' => 'required',
+			'min_subscription_amount' => 'required|numeric|min:1',
+			'max_subscription_amount' => 'required|numeric|min:1',
+			'stripe_connect_countries' => Rule::requiredIf($request->stripe_connect == 1)
+		];
 
 		$this->validate($request, $rules, $messages);
 
 		if (isset($request->stripe_connect_countries)) {
-				$stripeConnectCountries = implode( ',', $request->stripe_connect_countries);
-			}
+			$stripeConnectCountries = implode(',', $request->stripe_connect_countries);
+		}
 
 		$sql->currency_symbol  = $request->currency_symbol;
 		$sql->currency_code    = strtoupper($request->currency_code);
@@ -636,6 +630,7 @@ class AdminController extends Controller
 		$sql->payout_method_zelle = $request->payout_method_zelle;
 		$sql->payout_method_western_union = $request->payout_method_western_union;
 		$sql->payout_method_bank = $request->payout_method_bank;
+		$sql->payout_method_crypto = $request->payout_method_crypto;
 		$sql->decimal_format           = $request->decimal_format;
 		$sql->disable_wallet = $request->disable_wallet;
 		$sql->tax_on_wallet = $request->tax_on_wallet;
@@ -645,22 +640,22 @@ class AdminController extends Controller
 
 		$sql->save();
 
-	    \Session::flash('success_message', __('admin.success_update'));
+		\Session::flash('success_message', __('admin.success_update'));
 
-	    return redirect('panel/admin/payments');
-	}//<--- End Method
+		return redirect('panel/admin/payments');
+	}
 
 	public function withdrawals()
 	{
-		$data = Withdrawals::orderBy('id','DESC')->paginate(50);
+		$data = Withdrawals::orderBy('id', 'DESC')->paginate(50);
 		return view('admin.withdrawals', ['data' => $data]);
-	}//<--- End Method
+	}
 
 	public function withdrawalsView($id)
 	{
 		$data = Withdrawals::findOrFail($id);
 		return view('admin.withdrawal-view', ['data' => $data]);
-	}//<--- End Method
+	}
 
 	public function withdrawalsPaid(Request $request)
 	{
@@ -673,82 +668,84 @@ class AdminController extends Controller
 		$data->save();
 
 		//<------ Send Email to User ---------->>>
-		$amount       = Helper::amountWithoutFormat($data->amount).' '.$this->settings->currency_code;
+		$amount       = Helper::amountWithoutFormat($data->amount) . ' ' . $this->settings->currency_code;
 		$sender       = $this->settings->email_no_reply;
-	  	$titleSite    = $this->settings->title;
+		$titleSite    = $this->settings->title;
 		$fullNameUser = $user->name;
 		$_emailUser   = $user->email;
 
-		Mail::send('emails.withdrawal-processed', array(
-					'amount'     => $amount,
-					'title_site' => $titleSite,
-					'fullname'   => $fullNameUser
-		),
-			function($message) use ($sender, $fullNameUser, $titleSite, $_emailUser)
-				{
-				    $message->from($sender, $titleSite)
-									  ->to($_emailUser, $fullNameUser)
-										->subject( __('general.withdrawal_processed').' - '.$titleSite );
-				});
-			//<------ Send Email to User ---------->>>
+		Mail::send(
+			'emails.withdrawal-processed',
+			array(
+				'amount'     => $amount,
+				'title_site' => $titleSite,
+				'fullname'   => $fullNameUser
+			),
+			function ($message) use ($sender, $fullNameUser, $titleSite, $_emailUser) {
+				$message->from($sender, $titleSite)
+					->to($_emailUser, $fullNameUser)
+					->subject(__('general.withdrawal_processed') . ' - ' . $titleSite);
+			}
+		);
+		//<------ Send Email to User ---------->>>
 
 		return redirect('panel/admin/withdrawals');
-
-	}//<--- End Method
+	}
 
 
 	// START
 	public function categories()
 	{
 		$categories      = Categories::orderBy('name')->get();
-		$totalCategories = count( $categories );
+		$totalCategories = count($categories);
 
-		return view('admin.categories', compact( 'categories', 'totalCategories' ));
-	}//<--- END METHOD
+		return view('admin.categories', compact('categories', 'totalCategories'));
+	}
 
 	public function addCategories()
 	{
 		return view('admin.add-categories');
-	}//<--- END METHOD
+	}
 
-	public function storeCategories(Request $request) {
+	public function storeCategories(Request $request)
+	{
 
 		$temp            = 'public/temp/'; // Temp
-	  $path            = 'public/img-category/'; // Path General
+		$path            = 'public/img-category/'; // Path General
 
-		Validator::extend('ascii_only', function($attribute, $value, $parameters){
-    		return !preg_match('/[^x00-x7F\-]/i', $value);
+		Validator::extend('ascii_only', function ($attribute, $value, $parameters) {
+			return !preg_match('/[^x00-x7F\-]/i', $value);
 		});
 
 		$rules = array(
-          'name'        => 'required',
-	        'slug'        => 'required|ascii_only|unique:categories',
-	        'thumbnail'   => 'required|mimes:jpg,gif,png,jpe,jpeg|dimensions:min_width=30,min_height=30',
-        );
+			'name'        => 'required',
+			'slug'        => 'required|ascii_only|unique:categories',
+			'thumbnail'   => 'required|mimes:jpg,gif,png,jpe,jpeg|dimensions:min_width=30,min_height=30',
+		);
 
 		$this->validate($request, $rules);
 
-		if( $request->hasFile('thumbnail') ) {
+		if ($request->hasFile('thumbnail')) {
 
-		$extension       = $request->file('thumbnail')->getClientOriginalExtension();
-		$type_mime_image = $request->file('thumbnail')->getMimeType();
-		$sizeFile        = $request->file('thumbnail')->getSize();
-		$thumbnail       = $request->slug.'-'.Str::random(32).'.'.$extension;
+			$extension       = $request->file('thumbnail')->getClientOriginalExtension();
+			$type_mime_image = $request->file('thumbnail')->getMimeType();
+			$sizeFile        = $request->file('thumbnail')->getSize();
+			$thumbnail       = $request->slug . '-' . Str::random(32) . '.' . $extension;
 
-		if( $request->file('thumbnail')->move($temp, $thumbnail) ) {
+			if ($request->file('thumbnail')->move($temp, $thumbnail)) {
 
-			$image = Image::make($temp.$thumbnail);
+				$image = Image::make($temp . $thumbnail);
 
-			\File::copy($temp.$thumbnail, $path.$thumbnail);
-			\File::delete($temp.$thumbnail);
-			}// End File
+				\File::copy($temp . $thumbnail, $path . $thumbnail);
+				\File::delete($temp . $thumbnail);
+			} // End File
 		} // HasFile
 
-else {
-	$thumbnail = '';
-}
+		else {
+			$thumbnail = '';
+		}
 
-		$sql              = New Categories;
+		$sql              = new Categories;
 		$sql->name        = $request->name;
 		$sql->slug        = $request->slug;
 		$sql->keywords    = $request->keywords;
@@ -759,58 +756,56 @@ else {
 
 		\Session::flash('success_message', __('admin.success_add_category'));
 
-    	return redirect('panel/admin/categories');
+		return redirect('panel/admin/categories');
+	}
 
-	}//<--- END METHOD
-
-	public function editCategories($id) {
+	public function editCategories($id)
+	{
 
 		$categories = Categories::find($id);
 
 		return view('admin.edit-categories')->with('categories', $categories);
-
-	}//<--- END METHOD
+	}
 
 	public function updateCategories(Request $request)
 	{
 		$categories        = Categories::find($request->id);
 		$temp            = 'public/temp/'; // Temp
-	  $path            = 'public/img-category/'; // Path General
+		$path            = 'public/img-category/'; // Path General
 
-	  if(!isset($categories)) {
+		if (!isset($categories)) {
 			return redirect('panel/admin/categories');
 		}
 
-		Validator::extend('ascii_only', function($attribute, $value, $parameters){
-    		return !preg_match('/[^x00-x7F\-]/i', $value);
+		Validator::extend('ascii_only', function ($attribute, $value, $parameters) {
+			return !preg_match('/[^x00-x7F\-]/i', $value);
 		});
 
 		$rules = array(
-          'name'        => 'required',
-	        'slug'        => 'required|ascii_only|unique:categories,slug,'.$request->id,
-	        'thumbnail'   => 'mimes:jpg,gif,png,jpe,jpeg|dimensions:min_width=30,min_height=30',
-	     );
+			'name'        => 'required',
+			'slug'        => 'required|ascii_only|unique:categories,slug,' . $request->id,
+			'thumbnail'   => 'mimes:jpg,gif,png,jpe,jpeg|dimensions:min_width=30,min_height=30',
+		);
 
 		$this->validate($request, $rules);
 
-		if($request->hasFile('thumbnail')) {
+		if ($request->hasFile('thumbnail')) {
 
-		$extension        = $request->file('thumbnail')->getClientOriginalExtension();
-		$type_mime_image   = $request->file('thumbnail')->getMimeType();
-		$sizeFile         = $request->file('thumbnail')->getSize();
-		$thumbnail        = $request->slug.'-'.Str::random(32).'.'.$extension;
+			$extension        = $request->file('thumbnail')->getClientOriginalExtension();
+			$type_mime_image   = $request->file('thumbnail')->getMimeType();
+			$sizeFile         = $request->file('thumbnail')->getSize();
+			$thumbnail        = $request->slug . '-' . Str::random(32) . '.' . $extension;
 
-		if($request->file('thumbnail')->move($temp, $thumbnail)) {
+			if ($request->file('thumbnail')->move($temp, $thumbnail)) {
 
-			$image = Image::make($temp.$thumbnail);
+				$image = Image::make($temp . $thumbnail);
 
-			\File::copy($temp.$thumbnail, $path.$thumbnail);
-			\File::delete($temp.$thumbnail);
+				\File::copy($temp . $thumbnail, $path . $thumbnail);
+				\File::delete($temp . $thumbnail);
 
-			// Delete Old Image
-			\File::delete($path.$categories->thumbnail);
-
-			}// End File
+				// Delete Old Image
+				\File::delete($path . $categories->thumbnail);
+			} // End File
 		} // HasFile
 		else {
 			$thumbnail = $categories->image;
@@ -827,35 +822,34 @@ else {
 
 		\Session::flash('success_message', __('general.success_update'));
 		return redirect('panel/admin/categories');
-
-	}//<--- END METHOD
+	}
 
 	public function deleteCategories($id)
 	{
 
-			$categories   = Categories::findOrFail($id);
-			$thumbnail    = 'public/img-category/'.$categories->image; // Path General
+		$categories   = Categories::findOrFail($id);
+		$thumbnail    = 'public/img-category/' . $categories->image; // Path General
 
-			$userCategory = User::where('categories_id', $id)->update(['categories_id' => 0]);
+		$userCategory = User::where('categories_id', $id)->update(['categories_id' => 0]);
 
-			// Delete Category
-			$categories->delete();
+		// Delete Category
+		$categories->delete();
 
-			// Delete Thumbnail
-			if ( \File::exists($thumbnail) ) {
-				\File::delete($thumbnail);
-			}//<--- IF FILE EXISTS
+		// Delete Thumbnail
+		if (\File::exists($thumbnail)) {
+			\File::delete($thumbnail);
+		} //<--- IF FILE EXISTS
 
-			return redirect('panel/admin/categories');
-	}//<--- END METHOD
+		return redirect('panel/admin/categories');
+	}
 
 	public function posts(Request $request)
 	{
-		$data = Updates::orderBy('id','desc')->paginate(20);
+		$data = Updates::orderBy('id', 'desc')->paginate(20);
 		$sort  = $request->input('sort');
 
 		if (request('sort') == 'pending') {
-			$data = Updates::whereStatus('pending')->orderBy('id','desc')->paginate(20);
+			$data = Updates::whereStatus('pending')->orderBy('id', 'desc')->paginate(20);
 		}
 
 		return view('admin.posts', ['data' => $data, 'sort' => $sort]);
@@ -863,7 +857,7 @@ else {
 
 	public function deletePost(Request $request)
 	{
-	  	$sql       = Updates::findOrFail($request->id);
+		$sql       = Updates::findOrFail($request->id);
 		$path      = config('path.images');
 		$pathVideo = config('path.videos');
 		$pathMusic = config('path.music');
@@ -881,38 +875,37 @@ else {
 
 		foreach ($files as $media) {
 
-      if ($media->image) {
-        Storage::delete($path.$media->image);
-        $media->delete();
-      }
+			if ($media->image) {
+				Storage::delete($path . $media->image);
+				$media->delete();
+			}
 
-      if ($media->video) {
-        Storage::delete($pathVideo.$media->video);
-				Storage::delete($pathVideo.$media->video_poster);
-        $media->delete();
-      }
+			if ($media->video) {
+				Storage::delete($pathVideo . $media->video);
+				Storage::delete($pathVideo . $media->video_poster);
+				$media->delete();
+			}
 
-      if ($media->music) {
-        Storage::delete($pathMusic.$media->music);
-        $media->delete();
-      }
+			if ($media->music) {
+				Storage::delete($pathMusic . $media->music);
+				$media->delete();
+			}
 
-      if ($media->file) {
-        Storage::delete($pathFile.$media->file);
-        $media->delete();
-      }
+			if ($media->file) {
+				Storage::delete($pathFile . $media->file);
+				$media->delete();
+			}
 
-		if ($media->video_embed) {
-        $media->delete();
-      }
-
-    }
+			if ($media->video_embed) {
+				$media->delete();
+			}
+		}
 
 		// Delete Reports
-		$reports = Reports::where('report_id', $request->id)->where('type','update')->get();
+		$reports = Reports::where('report_id', $request->id)->where('type', 'update')->get();
 
-		if(isset($reports)){
-			foreach($reports as $report){
+		if (isset($reports)) {
+			foreach ($reports as $report) {
 				$report->delete();
 			}
 		}
@@ -932,47 +925,45 @@ else {
 			->where('type', '9')
 			->delete();
 
-			// Delete Likes Comments
-			foreach ($sql->comments()->get() as $key) {
-				$key->likes()->delete();
-			}
+		// Delete Likes Comments
+		foreach ($sql->comments()->get() as $key) {
+			$key->likes()->delete();
+		}
 
-			// Delete Comments
-			$sql->comments()->delete();
+		// Delete Comments
+		$sql->comments()->delete();
 
-			// Delete Replies
-			$sql->replies()->delete();
+		// Delete Replies
+		$sql->replies()->delete();
 
-			// Delete likes
-			Like::where('updates_id', $request->id)->delete();
-			
-			$sql->delete();
+		// Delete likes
+		Like::where('updates_id', $request->id)->delete();
+
+		$sql->delete();
 
 		return back();
-
-	}//<--- End Method
+	}
 
 	public function reports()
 	{
-		$data = Reports::orderBy('id','desc')->get();
+		$data = Reports::orderBy('id', 'desc')->get();
 		return view('admin.reports')->withData($data);
 	}
 
-	public function deleteReport(Request $request) {
-
+	public function deleteReport(Request $request)
+	{
 		$report = Reports::findOrFail($request->id);
 		$report->delete();
 		return redirect('panel/admin/reports');
-
-	}//<--- END METHOD
+	}
 
 	public function paymentsGateways($id)
 	{
 		$data = PaymentGateways::findOrFail($id);
 		$name = ucfirst($data->name);
 
-		return view('admin.'.str_slug($name).'-settings')->withData($data);
-	}//<--- End Method
+		return view('admin.' . str_slug($name) . '-settings')->withData($data);
+	}
 
 	public function savePaymentsGateways($id, Request $request)
 	{
@@ -980,24 +971,29 @@ else {
 		$input = $_POST;
 
 		// Sandbox off
-		if (! $request->sandbox) {
-		   $input['sandbox'] = 'false';
+		if (!$request->sandbox) {
+			$input['sandbox'] = 'false';
 		}
 
 		// Enabled off
-		if (! $request->enabled) {
-		   $input['enabled'] = '0';
+		if (!$request->enabled) {
+			$input['enabled'] = '0';
+		}
+
+		// Enabled off
+		if (!$request->ccbill_skip_subaccount_cancellations) {
+			$input['ccbill_skip_subaccount_cancellations'] = '0';
 		}
 
 		$this->validate($request, [
-            'email' => 'email',
-        ]);
+			'email' => 'email',
+		]);
 
 		$data->fill($input)->save();
 
 		// Set PayPal Keys on .env file
 		if ($data->name == 'PayPal') {
-			if (! $request->sandbox) {
+			if (!$request->sandbox) {
 				Helper::envUpdate('PAYPAL_MODE', 'live');
 				Helper::envUpdate('PAYPAL_LIVE_CLIENT_ID', $input['key']);
 				Helper::envUpdate('PAYPAL_LIVE_CLIENT_SECRET', $input['key_secret']);
@@ -1008,8 +1004,7 @@ else {
 			}
 
 			Helper::envUpdate('PAYPAL_WEBHOOK_ID', $input['webhook_secret']);
-
-		}// PayPal
+		} // PayPal
 
 		// Set Keys on .env file
 		if ($data->name == 'Stripe') {
@@ -1024,217 +1019,222 @@ else {
 			Helper::envUpdate('FLW_SECRET_KEY', $input['key_secret']);
 		}
 
-    return back()->withSuccessMessage(__('admin.success_update'));
-	}//<--- End Method
+		return back()->withSuccessMessage(__('admin.success_update'));
+	}
 
 	public function theme()
 	{
 		return view('admin.theme');
+	}
 
-	}//<--- End method
-
-	public function themeStore(Request $request) 
+	public function themeStore(Request $request)
 	{
 		$temp  = 'public/temp/'; // Temp
-	  	$path  = 'public/img/'; // Path
+		$path  = 'public/img/'; // Path
 		$pathAvatar  = config('path.avatar'); // Path
 
 		$rules = array(
-          'logo'   => 'mimes:png,svg',
-					'logo_blue'   => 'mimes:png,svg',
-					'favicon'   => 'mimes:png,svg',
-					'color' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
-				  'navbar_background_color' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
-				  'navbar_text_color' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
-				  'footer_background_color' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
-				  'footer_text_color' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/']
-        );
+			'logo'   => 'mimes:png,svg',
+			'logo_blue'   => 'mimes:png,svg',
+			'favicon'   => 'mimes:png,svg',
+			'color' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+			'navbar_background_color' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+			'navbar_text_color' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+			'footer_background_color' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/'],
+			'footer_text_color' => ['required', 'regex:/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/']
+		);
 
 		$this->validate($request, $rules);
 
 		//======= LOGO
-		if( $request->hasFile('logo') )	{
+		if ($request->hasFile('logo')) {
 
-		$extension = $request->file('logo')->getClientOriginalExtension();
-		$file      = 'logo-'.time().'.'.$extension;
+			$extension = $request->file('logo')->getClientOriginalExtension();
+			$file      = 'logo-' . time() . '.' . $extension;
 
-		if ($request->file('logo')->move($temp, $file)) {
-			\File::copy($temp.$file, $path.$file);
-			\File::delete($temp.$file);
-			// Delete old
-			\File::delete($path.$this->settings->logo);
-			}// End File
+			if ($request->file('logo')->move($temp, $file)) {
+				\File::copy($temp . $file, $path . $file);
+				\File::delete($temp . $file);
+				// Delete old
+				\File::delete($path . $this->settings->logo);
+			} // End File
 
 			$this->settings->logo = $file;
 			$this->settings->save();
-
 		} // HasFile
 
 		//======= LOGO BLUE
-		if( $request->hasFile('logo_2') ) {
+		if ($request->hasFile('logo_2')) {
+			$extension = $request->file('logo_2')->getClientOriginalExtension();
+			$file      = 'logo_2-' . time() . '.' . $extension;
 
-		$extension = $request->file('logo_2')->getClientOriginalExtension();
-		$file      = 'logo_2-'.time().'.'.$extension;
-
-		if ($request->file('logo_2')->move($temp, $file)) {
-			\File::copy($temp.$file, $path.$file);
-			\File::delete($temp.$file);
-			// Delete old
-			\File::delete($path.$this->settings->logo_2);
-			}// End File
+			if ($request->file('logo_2')->move($temp, $file)) {
+				\File::copy($temp . $file, $path . $file);
+				\File::delete($temp . $file);
+				// Delete old
+				\File::delete($path . $this->settings->logo_2);
+			} // End File
 
 			$this->settings->logo_2 = $file;
 			$this->settings->save();
+		} // HasFile
 
+		//======= Watermark Video
+		if ($request->hasFile('watermak_video')) {
+			$extension = $request->file('watermak_video')->getClientOriginalExtension();
+			$file      = 'watermak_video-' . time() . '.' . $extension;
+
+			if ($request->file('watermak_video')->move($temp, $file)) {
+				\File::copy($temp . $file, $path . $file);
+				\File::delete($temp . $file);
+				// Delete old
+				\File::delete($path . $this->settings->watermak_video);
+			} // End File
+
+			$this->settings->watermak_video = $file;
+			$this->settings->save();
 		} // HasFile
 
 		//======== FAVICON
-		if($request->hasFile('favicon') )	{
+		if ($request->hasFile('favicon')) {
 
-		$extension  = $request->file('favicon')->getClientOriginalExtension();
-		$file       = 'favicon-'.time().'.'.$extension;
+			$extension  = $request->file('favicon')->getClientOriginalExtension();
+			$file       = 'favicon-' . time() . '.' . $extension;
 
-		if ($request->file('favicon')->move($temp, $file)) {
-			\File::copy($temp.$file, $path.$file);
-			\File::delete($temp.$file);
-			// Delete old
-			\File::delete($path.$this->settings->favicon);
-			}// End File
+			if ($request->file('favicon')->move($temp, $file)) {
+				\File::copy($temp . $file, $path . $file);
+				\File::delete($temp . $file);
+				// Delete old
+				\File::delete($path . $this->settings->favicon);
+			} // End File
 
 			$this->settings->favicon = $file;
 			$this->settings->save();
-
 		} // HasFile
 
 		//======== Image Header
-		if ($request->hasFile('index_image_top') )	{
+		if ($request->hasFile('index_image_top')) {
 
-		$extension  = $request->file('index_image_top')->getClientOriginalExtension();
-		$file       = 'home_index-'.time().'.'.$extension;
+			$extension  = $request->file('index_image_top')->getClientOriginalExtension();
+			$file       = 'home_index-' . time() . '.' . $extension;
 
-		if ($request->file('index_image_top')->move($temp, $file)) {
-			\File::copy($temp.$file, $path.$file);
-			\File::delete($temp.$file);
-			// Delete old
-			\File::delete($path.$this->settings->home_index);
-			}// End File
+			if ($request->file('index_image_top')->move($temp, $file)) {
+				\File::copy($temp . $file, $path . $file);
+				\File::delete($temp . $file);
+				// Delete old
+				\File::delete($path . $this->settings->home_index);
+			} // End File
 
 			$this->settings->home_index = $file;
 			$this->settings->save();
-
 		} // HasFile
 
 		//======== Background
-		if ($request->hasFile('background') )	{
+		if ($request->hasFile('background')) {
 
-		$extension  = $request->file('background')->getClientOriginalExtension();
-		$file       = 'background-'.time().'.'.$extension;
+			$extension  = $request->file('background')->getClientOriginalExtension();
+			$file       = 'background-' . time() . '.' . $extension;
 
-		if ($request->file('background')->move($temp, $file)) {
-			\File::copy($temp.$file, $path.$file);
-			\File::delete($temp.$file);
-			// Delete old
-			\File::delete($path.$this->settings->background);
-			}// End File
+			if ($request->file('background')->move($temp, $file)) {
+				\File::copy($temp . $file, $path . $file);
+				\File::delete($temp . $file);
+				// Delete old
+				\File::delete($path . $this->settings->background);
+			} // End File
 
 			$this->settings->bg_gradient = $file;
 			$this->settings->save();
-
 		} // HasFile
 
 		//======== Image on index 1
-		if($request->hasFile('image_index_1') )	{
+		if ($request->hasFile('image_index_1')) {
 
-		$extension  = $request->file('image_index_1')->getClientOriginalExtension();
-		$file       = 'image_index_1-'.time().'.'.$extension;
+			$extension  = $request->file('image_index_1')->getClientOriginalExtension();
+			$file       = 'image_index_1-' . time() . '.' . $extension;
 
-		if ($request->file('image_index_1')->move($temp, $file)) {
-			\File::copy($temp.$file, $path.$file);
-			\File::delete($temp.$file);
-			// Delete old
-			\File::delete($path.$this->settings->img_1);
-			}// End File
+			if ($request->file('image_index_1')->move($temp, $file)) {
+				\File::copy($temp . $file, $path . $file);
+				\File::delete($temp . $file);
+				// Delete old
+				\File::delete($path . $this->settings->img_1);
+			} // End File
 
 			$this->settings->img_1 = $file;
 			$this->settings->save();
-
 		} // HasFile
 
 		//======== Image on index 2
-		if($request->hasFile('image_index_2') )	{
+		if ($request->hasFile('image_index_2')) {
 
-		$extension  = $request->file('image_index_2')->getClientOriginalExtension();
-		$file       = 'image_index_2-'.time().'.'.$extension;
+			$extension  = $request->file('image_index_2')->getClientOriginalExtension();
+			$file       = 'image_index_2-' . time() . '.' . $extension;
 
-		if ($request->file('image_index_2')->move($temp, $file)) {
-			\File::copy($temp.$file, $path.$file);
-			\File::delete($temp.$file);
-			// Delete old
-			\File::delete($path.$this->settings->img_2);
-			}// End File
+			if ($request->file('image_index_2')->move($temp, $file)) {
+				\File::copy($temp . $file, $path . $file);
+				\File::delete($temp . $file);
+				// Delete old
+				\File::delete($path . $this->settings->img_2);
+			} // End File
 
 			$this->settings->img_2 = $file;
 			$this->settings->save();
-
 		} // HasFile
 
 		//======== Image on index 3
-		if($request->hasFile('image_index_3') )	{
+		if ($request->hasFile('image_index_3')) {
 
-		$extension  = $request->file('image_index_3')->getClientOriginalExtension();
-		$file       = 'image_index_3-'.time().'.'.$extension;
+			$extension  = $request->file('image_index_3')->getClientOriginalExtension();
+			$file       = 'image_index_3-' . time() . '.' . $extension;
 
-		if ($request->file('image_index_3')->move($temp, $file)) {
-			\File::copy($temp.$file, $path.$file);
-			\File::delete($temp.$file);
-			// Delete old
-			\File::delete($path.$this->settings->img_3);
-			}// End File
+			if ($request->file('image_index_3')->move($temp, $file)) {
+				\File::copy($temp . $file, $path . $file);
+				\File::delete($temp . $file);
+				// Delete old
+				\File::delete($path . $this->settings->img_3);
+			} // End File
 
 			$this->settings->img_3 = $file;
 			$this->settings->save();
-
 		} // HasFile
 
 		//======== Image on index 4
-		if($request->hasFile('image_index_4') )	{
+		if ($request->hasFile('image_index_4')) {
 
-		$extension  = $request->file('image_index_4')->getClientOriginalExtension();
-		$file       = 'image_index_4-'.time().'.'.$extension;
+			$extension  = $request->file('image_index_4')->getClientOriginalExtension();
+			$file       = 'image_index_4-' . time() . '.' . $extension;
 
-		if ($request->file('image_index_4')->move($temp, $file)) {
-			\File::copy($temp.$file, $path.$file);
-			\File::delete($temp.$file);
-			// Delete old
-			\File::delete($path.$this->settings->img_4);
-			}// End File
+			if ($request->file('image_index_4')->move($temp, $file)) {
+				\File::copy($temp . $file, $path . $file);
+				\File::delete($temp . $file);
+				// Delete old
+				\File::delete($path . $this->settings->img_4);
+			} // End File
 
 			$this->settings->img_4 = $file;
 			$this->settings->save();
-
 		} // HasFile
 
 		//======== Avatar
 		if ($request->hasFile('avatar')) {
 
 			$extension  = $request->file('avatar')->getClientOriginalExtension();
-			$file       = 'default-'.time().'.'.$extension;
+			$file       = 'default-' . time() . '.' . $extension;
 
-		$imgAvatar  = Image::make($request->file('avatar'))->fit(200, 200, function ($constraint) {
-			$constraint->aspectRatio();
-			$constraint->upsize();
-		})->encode($extension);
+			$imgAvatar  = Image::make($request->file('avatar'))->fit(200, 200, function ($constraint) {
+				$constraint->aspectRatio();
+				$constraint->upsize();
+			})->encode($extension);
 
-		// Copy folder
-		Storage::put($pathAvatar.$file, $imgAvatar, 'public');
+			// Copy folder
+			Storage::put($pathAvatar . $file, $imgAvatar, 'public');
 
-		// Update Avatar all users
-		User::where('avatar', $this->settings->avatar)->update([
-					'avatar' => $file
-				]);
+			// Update Avatar all users
+			User::where('avatar', $this->settings->avatar)->update([
+				'avatar' => $file
+			]);
 
-		// Delete old Avatar
-		Storage::delete(config('path.avatar').$this->settings->avatar);
+			// Delete old Avatar
+			Storage::delete(config('path.avatar') . $this->settings->avatar);
 
 			$this->settings->avatar = $file;
 			$this->settings->save();
@@ -1245,19 +1245,19 @@ else {
 
 			$pathCover = config('path.cover');
 			$extension  = $request->file('cover_default')->getClientOriginalExtension();
-			$file       = 'cover_default-'.time().'.'.$extension;
+			$file       = 'cover_default-' . time() . '.' . $extension;
 
-		$request->file('cover_default')->storePubliclyAs($pathCover, $file);
+			$request->file('cover_default')->storePubliclyAs($pathCover, $file);
 
-		// Update Cover all users
-		User::where('cover', $this->settings->cover_default)
-		->orWhere('cover', '')
-		->update([
+			// Update Cover all users
+			User::where('cover', $this->settings->cover_default)
+				->orWhere('cover', '')
+				->update([
 					'cover' => $file
 				]);
 
-		// Delete old Avatar
-		Storage::delete($pathCover.$this->settings->cover_default);
+			// Delete old Avatar
+			Storage::delete($pathCover . $this->settings->cover_default);
 
 			$this->settings->cover_default = $file;
 			$this->settings->save();
@@ -1280,61 +1280,60 @@ else {
 		\Artisan::call('view:clear');
 
 		return redirect('panel/admin/theme')
-			 ->with('success_message', __('admin.success_update'));
-
-	}//<--- End method
+			->with('success_message', __('admin.success_update'));
+	}
 
 	// Google
 	public function google()
 	{
 		return view('admin.google');
-	}//<--- END METHOD
+	}
 
 	public function update_google(Request $request)
 	{
 		$sql = $this->settings;
 		$sql->google_analytics = $request->google_analytics;
+		$sql->google_tag_manager_head = $request->google_tag_manager_head;
+		$sql->google_tag_manager_body = $request->google_tag_manager_body;
 		$sql->save();
 
 		foreach ($request->except(['_token']) as $key => $value) {
 			Helper::envUpdate($key, $value);
 		}
 
-		\Session::flash('success_message', __('admin.success_update'));
-
-	    return redirect('panel/admin/google');
-	}//<--- End Method
+		return redirect('panel/admin/google')->withSuccessMessage(__('admin.success_update'));
+	}
 
 	// Verification Requests
 	public function memberVerification()
 	{
-		$data = VerificationRequests::orderBy('id','desc')->paginate(30);
+		$data = VerificationRequests::orderBy('id', 'desc')->paginate(30);
 		return view('admin.verification')->withData($data);
 	}
 
 	// Verification Requests Send
 	public function memberVerificationSend($action, $id, $user)
 	{
-			$member = User::find($user);
-			$pathImage = config('path.verification');
+		$member = User::find($user);
+		$pathImage = config('path.verification');
 
-			if (! isset($member)) {
-				$sql = VerificationRequests::findOrFail($id);
-				// Delete Image
-				Storage::delete($pathImage.$sql->image);
-				// Delete Form W-9
-				Storage::delete($pathImage.$sql->form_w9);
-				$sql->delete();
+		if (!isset($member)) {
+			$sql = VerificationRequests::findOrFail($id);
+			// Delete Image
+			Storage::delete($pathImage . $sql->image);
+			// Delete Form W-9
+			Storage::delete($pathImage . $sql->form_w9);
+			$sql->delete();
 
-				\Session::flash('success_message', __('admin.success_update'));
-				return redirect('panel/admin/verification/members');
-			}
+			\Session::flash('success_message', __('admin.success_update'));
+			return redirect('panel/admin/verification/members');
+		}
 
-			// Data Email Send
-			$sender       = $this->settings->email_no_reply;
-		  	$titleSite    = $this->settings->title;
-			$fullNameUser = $member->name;
-			$emailUser   = $member->email;
+		// Data Email Send
+		$sender       = $this->settings->email_no_reply;
+		$titleSite    = $this->settings->title;
+		$fullNameUser = $member->name;
+		$emailUser   = $member->email;
 
 		if ($action == 'approve') {
 			$sql = VerificationRequests::whereId($id)->whereUserId($user)->whereStatus('pending')->firstOrFail();
@@ -1350,32 +1349,33 @@ else {
 
 			try {
 				//<------ Send Email to User ---------->>>
-			Mail::send('emails.account_verification', array(
-				'body' => __('general.body_account_verification_approved'),
-				'title_site' => $titleSite,
-				'fullname'   => $fullNameUser
-			),
-				function($message) use ($sender, $fullNameUser, $titleSite, $emailUser)
-					{
-					    $message->from($sender, $titleSite)
-										  ->to($emailUser, $fullNameUser)
-											->subject(__('general.account_verification_approved').' - '.$titleSite);
-					});
+				Mail::send(
+					'emails.account_verification',
+					array(
+						'body' => __('general.body_account_verification_approved'),
+						'title_site' => $titleSite,
+						'fullname'   => $fullNameUser
+					),
+					function ($message) use ($sender, $fullNameUser, $titleSite, $emailUser) {
+						$message->from($sender, $titleSite)
+							->to($emailUser, $fullNameUser)
+							->subject(__('general.account_verification_approved') . ' - ' . $titleSite);
+					}
+				);
 				//<------ End Send Email to User ---------->>>
 
 				\Session::flash('success_message', __('admin.success_update'));
-			   return redirect('panel/admin/verification/members');
-
-			} catch (\Exception $e) {}
-
+				return redirect('panel/admin/verification/members');
+			} catch (\Exception $e) {
+			}
 		} elseif ($action == 'delete') {
 			$sql = VerificationRequests::findOrFail($id);
 
 			// Delete Image
-			Storage::delete($pathImage.$sql->image);
+			Storage::delete($pathImage . $sql->image);
 
 			// Delete Form W-9
-			Storage::delete($pathImage.$sql->form_w9);
+			Storage::delete($pathImage . $sql->form_w9);
 
 			$sql->delete();
 
@@ -1387,27 +1387,28 @@ else {
 			Notifications::send($member->id, $member->id, 19, $member->id);
 
 			try {
-			//<------ Send Email to User ---------->>>
-			Mail::send('emails.account_verification', array(
-				'body' => __('general.body_account_verification_reject'),
-				'title_site' => $titleSite,
-				'fullname'   => $fullNameUser
-			),
-				function($message) use ($sender, $fullNameUser, $titleSite, $emailUser)
-					{
-					    $message->from($sender, $titleSite)
-										  ->to($emailUser, $fullNameUser)
-											->subject(__('general.account_verification_not_approved').' - '.$titleSite);
-					});
+				//<------ Send Email to User ---------->>>
+				Mail::send(
+					'emails.account_verification',
+					array(
+						'body' => __('general.body_account_verification_reject'),
+						'title_site' => $titleSite,
+						'fullname'   => $fullNameUser
+					),
+					function ($message) use ($sender, $fullNameUser, $titleSite, $emailUser) {
+						$message->from($sender, $titleSite)
+							->to($emailUser, $fullNameUser)
+							->subject(__('general.account_verification_not_approved') . ' - ' . $titleSite);
+					}
+				);
 				//<------ End Send Email to User ---------->>>
 
-			 \Session::flash('success_message', __('admin.success_update'));
-		   return redirect('panel/admin/verification/members');
-
-		} catch (\Exception $e) {}
-	  }
-
-	}// End Method
+				\Session::flash('success_message', __('admin.success_update'));
+				return redirect('panel/admin/verification/members');
+			} catch (\Exception $e) {
+			}
+		}
+	}
 
 	public function billingStore(Request $request)
 	{
@@ -1417,18 +1418,17 @@ else {
 		$this->settings->city = $request->city;
 		$this->settings->zip = $request->zip;
 		$this->settings->vat = $request->vat;
+		$this->settings->show_address_company_footer = $request->show_address_company_footer;
 		$this->settings->save();
 
-		\Session::flash('success_message', __('admin.success_update'));
-		return back();
-
+		return back()->withSuccessMessage(__('admin.success_update'));
 	}
 
 	public function emailSettings(Request $request)
 	{
 		$request->validate([
-				'MAIL_FROM_ADDRESS' => 'required'
-			]);
+			'MAIL_FROM_ADDRESS' => 'required'
+		]);
 
 		$request->MAIL_ENCRYPTION = strtolower($request->MAIL_ENCRYPTION);
 
@@ -1439,14 +1439,13 @@ else {
 			Helper::envUpdate($key, $value);
 
 			if ($value == $request->MAIL_FROM_ADDRESS) {
-				Helper::envUpdate('MAIL_FROM_ADDRESS', ' "'.$request->MAIL_FROM_ADDRESS.'" ', true);
+				Helper::envUpdate('MAIL_FROM_ADDRESS', ' "' . $request->MAIL_FROM_ADDRESS . '" ', true);
 			}
 		}
 
 		\Session::flash('success_message', __('admin.success_update'));
-		
-		return back();
 
+		return back();
 	}
 
 	public function updateSocialLogin(Request $request)
@@ -1472,38 +1471,38 @@ else {
 		];
 
 		$request->validate([
-				'APP_URL'      => 'required|url',
-				'AWS_ACCESS_KEY_ID' => 'required_if:FILESYSTEM_DRIVER,==,s3',
-				'AWS_SECRET_ACCESS_KEY' => 'required_if:FILESYSTEM_DRIVER,==,s3',
-				'AWS_DEFAULT_REGION' => 'required_if:FILESYSTEM_DRIVER,==,s3',
-				'AWS_BUCKET' => 'required_if:FILESYSTEM_DRIVER,==,s3',
+			'APP_URL'      => 'required|url',
+			'AWS_ACCESS_KEY_ID' => 'required_if:FILESYSTEM_DRIVER,==,s3',
+			'AWS_SECRET_ACCESS_KEY' => 'required_if:FILESYSTEM_DRIVER,==,s3',
+			'AWS_DEFAULT_REGION' => 'required_if:FILESYSTEM_DRIVER,==,s3',
+			'AWS_BUCKET' => 'required_if:FILESYSTEM_DRIVER,==,s3',
 
-				'DOS_ACCESS_KEY_ID' => 'required_if:FILESYSTEM_DRIVER,==,dospace',
-				'DOS_SECRET_ACCESS_KEY' => 'required_if:FILESYSTEM_DRIVER,==,dospace',
-				'DOS_DEFAULT_REGION' => 'required_if:FILESYSTEM_DRIVER,==,dospace',
-				'DOS_BUCKET' => 'required_if:FILESYSTEM_DRIVER,==,dospace',
+			'DOS_ACCESS_KEY_ID' => 'required_if:FILESYSTEM_DRIVER,==,dospace',
+			'DOS_SECRET_ACCESS_KEY' => 'required_if:FILESYSTEM_DRIVER,==,dospace',
+			'DOS_DEFAULT_REGION' => 'required_if:FILESYSTEM_DRIVER,==,dospace',
+			'DOS_BUCKET' => 'required_if:FILESYSTEM_DRIVER,==,dospace',
 
-				'WAS_ACCESS_KEY_ID' => 'required_if:FILESYSTEM_DRIVER,==,wasabi',
-				'WAS_SECRET_ACCESS_KEY' => 'required_if:FILESYSTEM_DRIVER,==,wasabi',
-				'WAS_DEFAULT_REGION' => 'required_if:FILESYSTEM_DRIVER,==,wasabi',
-				'WAS_BUCKET' => 'required_if:FILESYSTEM_DRIVER,==,wasabi',
+			'WAS_ACCESS_KEY_ID' => 'required_if:FILESYSTEM_DRIVER,==,wasabi',
+			'WAS_SECRET_ACCESS_KEY' => 'required_if:FILESYSTEM_DRIVER,==,wasabi',
+			'WAS_DEFAULT_REGION' => 'required_if:FILESYSTEM_DRIVER,==,wasabi',
+			'WAS_BUCKET' => 'required_if:FILESYSTEM_DRIVER,==,wasabi',
 
-				'BACKBLAZE_ACCOUNT_ID' => 'required_if:FILESYSTEM_DRIVER,==,backblaze',
-				'BACKBLAZE_APP_KEY' => 'required_if:FILESYSTEM_DRIVER,==,backblaze',
-				'BACKBLAZE_BUCKET' => 'required_if:FILESYSTEM_DRIVER,==,backblaze',
-				'BACKBLAZE_BUCKET_ID' => 'required_if:FILESYSTEM_DRIVER,==,backblaze',
-				'BACKBLAZE_BUCKET_REGION' => 'required_if:FILESYSTEM_DRIVER,==,backblaze',
+			'BACKBLAZE_ACCOUNT_ID' => 'required_if:FILESYSTEM_DRIVER,==,backblaze',
+			'BACKBLAZE_APP_KEY' => 'required_if:FILESYSTEM_DRIVER,==,backblaze',
+			'BACKBLAZE_BUCKET' => 'required_if:FILESYSTEM_DRIVER,==,backblaze',
+			'BACKBLAZE_BUCKET_ID' => 'required_if:FILESYSTEM_DRIVER,==,backblaze',
+			'BACKBLAZE_BUCKET_REGION' => 'required_if:FILESYSTEM_DRIVER,==,backblaze',
 
-				'VULTR_ACCESS_KEY' => 'required_if:FILESYSTEM_DRIVER,==,vultr',
-				'VULTR_SECRET_KEY' => 'required_if:FILESYSTEM_DRIVER,==,vultr',
-				'VULTR_REGION' => 'required_if:FILESYSTEM_DRIVER,==,vultr',
-				'VULTR_BUCKET' => 'required_if:FILESYSTEM_DRIVER,==,vultr',
-			], $messages);
+			'VULTR_ACCESS_KEY' => 'required_if:FILESYSTEM_DRIVER,==,vultr',
+			'VULTR_SECRET_KEY' => 'required_if:FILESYSTEM_DRIVER,==,vultr',
+			'VULTR_REGION' => 'required_if:FILESYSTEM_DRIVER,==,vultr',
+			'VULTR_BUCKET' => 'required_if:FILESYSTEM_DRIVER,==,vultr',
+		], $messages);
 
-			// Enabled/Disabled DigitalOcean CDN
-			if (! $request->DOS_CDN) {
-				Helper::envUpdate('DOS_CDN', null);
-			}
+		// Enabled/Disabled DigitalOcean CDN
+		if (!$request->DOS_CDN) {
+			Helper::envUpdate('DOS_CDN', null);
+		}
 
 		foreach ($request->except(['_token']) as $key => $value) {
 			if ($value == $request->APP_URL) {
@@ -1512,10 +1511,9 @@ else {
 
 			Helper::envUpdate($key, $value);
 		}
-		
-		return back()->withSuccessMessage(__('admin.success_update'));
 
-	} // End Method
+		return back()->withSuccessMessage(__('admin.success_update'));
+	}
 
 	public function uploadImageEditor(Request $request)
 	{
@@ -1524,69 +1522,67 @@ else {
 			$path = config('path.admin');
 
 			$validator = Validator::make($request->all(), [
-				'upload' => 'required|mimes:jpg,gif,png,jpe,jpeg|max:'.$this->settings->file_size_allowed.'',
-						]);
+				'upload' => 'required|mimes:jpg,gif,png,jpe,jpeg|max:' . $this->settings->file_size_allowed . '',
+			]);
 
 			if ($validator->fails()) {
- 	        return response()->json([
- 			        'uploaded' => 0,
-							'error' => ['message' => __('general.upload_image_error_editor').' '.Helper::formatBytes($this->settings->file_size_allowed * 1024)],
- 			    ]);
- 	    } //<-- Validator
+				return response()->json([
+					'uploaded' => 0,
+					'error' => ['message' => __('general.upload_image_error_editor') . ' ' . Helper::formatBytes($this->settings->file_size_allowed * 1024)],
+				]);
+			} //<-- Validator
 
 
-        $originName = $request->file('upload')->getClientOriginalName();
-        $fileName = pathinfo($originName, PATHINFO_FILENAME);
-        $extension = $request->file('upload')->getClientOriginalExtension();
-        $fileName = str_random().'_'.time().'.'.$extension;
+			$originName = $request->file('upload')->getClientOriginalName();
+			$fileName = pathinfo($originName, PATHINFO_FILENAME);
+			$extension = $request->file('upload')->getClientOriginalExtension();
+			$fileName = str_random() . '_' . time() . '.' . $extension;
 
-				$request->file('upload')->storePubliclyAs($path, $fileName);
+			$request->file('upload')->storePubliclyAs($path, $fileName);
 
-        $CKEditorFuncNum = $request->input('CKEditorFuncNum');
-        $url = Helper::getFile($path.$fileName);
-        $msg = 'Image uploaded successfully';
-        $response = "<script type='text/javascript'>window.parent.CKEDITOR.tools.callFunction($CKEditorFuncNum, '$url', '$msg');</script>";
+			$CKEditorFuncNum = $request->input('CKEditorFuncNum');
+			$url = Helper::getFile($path . $fileName);
+			$msg = 'Image uploaded successfully';
+			$response = "<script type='text/javascript'>window.parent.CKEDITOR.tools.callFunction($CKEditorFuncNum, '$url', '$msg');</script>";
 
-				return response()->json([ 'fileName' => $fileName, 'uploaded' => true, 'url' => $url, ]);
-    }
-	}// End Method
+			return response()->json(['fileName' => $fileName, 'uploaded' => true, 'url' => $url,]);
+		}
+	}
 
 	public function blog()
 	{
-		$data = Blogs::orderBy('id','desc')->paginate(50);
+		$data = Blogs::orderBy('id', 'desc')->paginate(50);
 		return view('admin.blog', ['data' => $data]);
-	}//<--- End Method
+	}
 
 	public function createBlogStore(Request $request)
 	{
 		$path = config('path.admin');
 
 		$rules = [
-            'title'     => 'required',
-						'thumbnail' => 'required|dimensions:min_width=650,min_height=430',
-						'tags'      => 'required',
-						'content'   => 'required',
-	     ];
+			'title'     => 'required',
+			'thumbnail' => 'required|dimensions:min_width=650,min_height=430',
+			'tags'      => 'required',
+			'content'   => 'required',
+		];
 
 		$this->validate($request, $rules);
 
 		// Image
-		if( $request->hasFile('thumbnail') ) {
-
+		if ($request->hasFile('thumbnail')) {
 			$image     =  $request->file('thumbnail');
 			$extension = $image->getClientOriginalExtension();
-			$thumbnail = str_random(55).'.'.$extension;
+			$thumbnail = str_random(55) . '.' . $extension;
 
-		$imageResize  = Image::make($image)->orientate()->resize(650, null, function ($constraint) {
-			$constraint->aspectRatio();
-			$constraint->upsize();
-		})->encode($extension);
+			$imageResize  = Image::make($image)->orientate()->resize(650, null, function ($constraint) {
+				$constraint->aspectRatio();
+				$constraint->upsize();
+			})->encode($extension);
 
-		  Storage::put($path.$thumbnail, $imageResize, 'public');
-
+			Storage::put($path . $thumbnail, $imageResize, 'public');
 		} // HasFile Image
 
-		$data = New Blogs;
+		$data = new Blogs;
 		$data->slug = str_slug($request->title);
 		$data->title = $request->title;
 		$data->image = $thumbnail;
@@ -1595,18 +1591,16 @@ else {
 		$data->user_id = auth()->user()->id;
 		$data->save();
 
-		\Session::flash('success_message',__('admin.success_add'));
+		\Session::flash('success_message', __('admin.success_add'));
 		return redirect('panel/admin/blog');
-
-	}//<--- END METHOD
+	}
 
 	public function editBlog($id)
 	{
 		$data = Blogs::findOrFail($id);
 
-		return view('admin.edit-blog', ['data' => $data ]);
-
-	}//<--- End Method
+		return view('admin.edit-blog', ['data' => $data]);
+	}
 
 	public function updateBlog(Request $request)
 	{
@@ -1615,33 +1609,32 @@ else {
 		$path = config('path.admin');
 
 		$rules = [
-            'title'   => 'required',
-						'thumbnail' => 'dimensions:min_width=650,min_height=430',
-						'tags'    => 'required',
-						'content' => 'required',
-	     ];
+			'title'   => 'required',
+			'thumbnail' => 'dimensions:min_width=650,min_height=430',
+			'tags'    => 'required',
+			'content' => 'required',
+		];
 
 		$this->validate($request, $rules);
 
 		$thumbnail = $data->image;
 
 		// Image
-		if( $request->hasFile('thumbnail') ) {
+		if ($request->hasFile('thumbnail')) {
 
 			$image     =  $request->file('thumbnail');
 			$extension = $image->getClientOriginalExtension();
-			$thumbnail = str_random(55).'.'.$extension;
+			$thumbnail = str_random(55) . '.' . $extension;
 
-		$imageResize  = Image::make($image)->orientate()->resize(650, null, function ($constraint) {
-			$constraint->aspectRatio();
-			$constraint->upsize();
-		})->encode($extension);
+			$imageResize  = Image::make($image)->orientate()->resize(650, null, function ($constraint) {
+				$constraint->aspectRatio();
+				$constraint->upsize();
+			})->encode($extension);
 
-			Storage::put($path.$thumbnail, $imageResize, 'public');
+			Storage::put($path . $thumbnail, $imageResize, 'public');
 
-		// Delete Old Thumbnail
-		Storage::delete($path.$data->image);
-
+			// Delete Old Thumbnail
+			Storage::delete($path . $data->image);
 		} // HasFile Image
 
 		$data->title = $request->title;
@@ -1652,8 +1645,7 @@ else {
 		$data->save();
 
 		return back()->withSuccessMessage(__('admin.success_update'));
-
-	}//<--- END METHOD
+	}
 
 	public function deleteBlog($id)
 	{
@@ -1662,13 +1654,12 @@ else {
 		$path = config('path.admin');
 
 		// Delete Old Thumbnail
-		Storage::delete($path.$data->image);
+		Storage::delete($path . $data->image);
 
 		$data->delete();
 
 		return redirect('panel/admin/blog')->withSuccessMessage(__('admin.blog_deleted'));
-
-	}//<--- END METHOD
+	}
 
 	public function resendConfirmationEmail($id)
 	{
@@ -1677,44 +1668,46 @@ else {
 		$confirmation_code = Str::random(100);
 
 		//send verification mail to user
-	 $_username      = $user->username;
-	 $_email_user    = $user->email;
-	 $_title_site    = $this->settings->title;
-	 $_email_noreply = $this->settings->email_no_reply;
+		$_username      = $user->username;
+		$_email_user    = $user->email;
+		$_title_site    = $this->settings->title;
+		$_email_noreply = $this->settings->email_no_reply;
 
-	 app()->setLocale($user->language);
+		app()->setLocale($user->language);
 
-	 Mail::send('emails.verify', array('confirmation_code' => $confirmation_code, 'isProfile' => null),
-	 function($message) use (
-			 $_username,
-			 $_email_user,
-			 $_title_site,
-			 $_email_noreply
-	 ) {
-							$message->from($_email_noreply, $_title_site);
-							$message->subject(__('users.title_email_verify'));
-							$message->to($_email_user,$_username);
-					});
+		Mail::send(
+			'emails.verify',
+			array('confirmation_code' => $confirmation_code, 'isProfile' => null),
+			function ($message) use (
+				$_username,
+				$_email_user,
+				$_title_site,
+				$_email_noreply
+			) {
+				$message->from($_email_noreply, $_title_site);
+				$message->subject(__('users.title_email_verify'));
+				$message->to($_email_user, $_username);
+			}
+		);
 
-					$user->update(['confirmation_code' => $confirmation_code]);
+		$user->update(['confirmation_code' => $confirmation_code]);
 
 		\Session::flash('success_message', __('general.send_success'));
 
-    return redirect('panel/admin/members');
-
+		return redirect('panel/admin/members');
 	}
 
 	public function deposits()
 	{
 		$data = Deposits::orderBy('id', 'desc')->paginate(30);
 		return view('admin.deposits')->withData($data);
-	}//<--- End Method
+	}
 
 	public function depositsView($id)
 	{
 		$data = Deposits::findOrFail($id);
 		return view('admin.deposits-view')->withData($data);
-	}//<--- End Method
+	}
 
 	public function approveDeposits(Request $request)
 	{
@@ -1727,66 +1720,69 @@ else {
 		$emailUser    = $sql->user()->email;
 		$language     = $sql->user()->language;
 
-		Mail::send('emails.transfer_verification', [
-			'body' => __('general.info_transfer_verified', ['amount' => Helper::amountFormat($sql->amount)]),
-			'type' => 'approve',
-			'title_site' => $titleSite,
-			'fullname'   => $fullNameUser
-		],
-			function($message) use ($sender, $fullNameUser, $titleSite, $emailUser)
-				{
-						$message->from($sender, $titleSite)
-										->to($emailUser, $fullNameUser)
-										->subject(__('general.transfer_verified').' - '.$titleSite);
-				});
+		Mail::send(
+			'emails.transfer_verification',
+			[
+				'body' => __('general.info_transfer_verified', ['amount' => Helper::amountFormat($sql->amount)]),
+				'type' => 'approve',
+				'title_site' => $titleSite,
+				'fullname'   => $fullNameUser
+			],
+			function ($message) use ($sender, $fullNameUser, $titleSite, $emailUser) {
+				$message->from($sender, $titleSite)
+					->to($emailUser, $fullNameUser)
+					->subject(__('general.transfer_verified') . ' - ' . $titleSite);
+			}
+		);
 
 
-			//<------ End Send Email to User ---------->>>
+		//<------ End Send Email to User ---------->>>
 
-			$sql->status = 'active';
-			$sql->save();
+		$sql->status = 'active';
+		$sql->save();
 
-			// Add Funds to User
-			User::find($sql->user()->id)->increment('wallet', $sql->amount);
+		// Add Funds to User
+		User::find($sql->user()->id)->increment('wallet', $sql->amount);
 
 		return redirect('panel/admin/deposits');
-	}//<--- END METHOD
+	}
 
 	public function deleteDeposits(Request $request)
 	{
 		$path = config('path.admin');
-	  $sql = Deposits::findOrFail($request->id);
+		$sql = Deposits::findOrFail($request->id);
 
 		if (isset($sql->user()->name)) {
 			//<------ Send Email to User ---------->>>
-		 $sender       = $this->settings->email_no_reply;
-		 $titleSite    = $this->settings->title;
-		 $fullNameUser = $sql->user()->name;
-		 $emailUser   =  $sql->user()->email;
+			$sender       = $this->settings->email_no_reply;
+			$titleSite    = $this->settings->title;
+			$fullNameUser = $sql->user()->name;
+			$emailUser   =  $sql->user()->email;
 
-		 Mail::send('emails.transfer_verification', array(
-			 'body' => __('general.info_transfer_not_verified', ['amount' => Helper::amountFormat($sql->amount)]),
-			 'type' => 'not_approve',
-			 'title_site' => $titleSite,
-			 'fullname'   => $fullNameUser
-		 ),
-			 function($message) use ($sender, $fullNameUser, $titleSite, $emailUser)
-				 {
-						 $message->from($sender, $titleSite)
-										 ->to($emailUser, $fullNameUser)
-										 ->subject(__('general.transfer_not_verified').' - '.$titleSite);
-				 });
-			 //<------ End Send Email to User ---------->>>
+			Mail::send(
+				'emails.transfer_verification',
+				array(
+					'body' => __('general.info_transfer_not_verified', ['amount' => Helper::amountFormat($sql->amount)]),
+					'type' => 'not_approve',
+					'title_site' => $titleSite,
+					'fullname'   => $fullNameUser
+				),
+				function ($message) use ($sender, $fullNameUser, $titleSite, $emailUser) {
+					$message->from($sender, $titleSite)
+						->to($emailUser, $fullNameUser)
+						->subject(__('general.transfer_not_verified') . ' - ' . $titleSite);
+				}
+			);
+			//<------ End Send Email to User ---------->>>
 		}
 
-			// Delete Image
-			Storage::delete($path.$sql->screenshot_transfer);
+		// Delete Image
+		Storage::delete($path . $sql->screenshot_transfer);
 
-	      $sql->delete();
+		$sql->delete();
 
-      return redirect('panel/admin/deposits');
-
-	}//<--- End Method
+		return redirect('panel/admin/deposits');
+	}
 
 	public function loginAsUser(Request $request)
 	{
@@ -1803,7 +1799,6 @@ else {
 		$sql->save();
 
 		return back()->withSuccessMessage(__('admin.success_update'));
-
 	}
 
 	public function pwa(Request $request)
@@ -1812,18 +1807,18 @@ else {
 
 		if ($allImgs) {
 			foreach ($allImgs as $key => $file) {
-			$filename = md5(uniqid()).'.'.$file->getClientOriginalExtension();
-			$file->move(public_path('images/icons'), $filename);
+				$filename = md5(uniqid()) . '.' . $file->getClientOriginalExtension();
+				$file->move(public_path('images/icons'), $filename);
 
-			\File::delete(env($key));
+				\File::delete(env($key));
 
-			$envIcon = 'public/images/icons/' . $filename;
-			Helper::envUpdate($key, $envIcon);
+				$envIcon = 'public/images/icons/' . $filename;
+				Helper::envUpdate($key, $envIcon);
 			}
 		}
 
 		// Updaye Short Name
-		Helper::envUpdate('PWA_SHORT_NAME', ' "'.$request->PWA_SHORT_NAME.'" ', true);
+		Helper::envUpdate('PWA_SHORT_NAME', ' "' . $request->PWA_SHORT_NAME . '" ', true);
 
 		$sql = $this->settings;
 		$sql->status_pwa = $request->status_pwa;
@@ -1833,15 +1828,14 @@ else {
 		\Artisan::call('view:clear');
 
 		return back()->withSuccessMessage(__('admin.success_update'));
-
 	}
 
 	public function getFileVerification($filename)
-  {
-		$filename = config('path.verification').$filename;
+	{
+		$filename = config('path.verification') . $filename;
 
-  	return Storage::download($filename, null, [], null);
-  }
+		return Storage::download($filename, null, [], null);
+	}
 
 	public function storeAnnouncements(Request $request)
 	{
@@ -1857,15 +1851,21 @@ else {
 	public function approvePost(Request $request)
 	{
 		$post = Updates::findOrFail($request->id);
+
+		// Status final post
+		$statusPost = $post->schedule ? 'schedule' : 'active';
+
 		$post->date = now();
-		$post->status = 'active';
+		$post->status = $statusPost;
 		$post->save();
 
 		// Notify to user - destination, author, type, target
 		Notifications::send($post->user_id, 1, 8, $post->id);
 
-		// Event to listen
-		event(new NewPostEvent($post));
+		if ($statusPost == 'active' && !$this->settings->disable_new_post_notification) {
+			// Event to listen
+			event(new NewPostEvent($post));
+		}
 
 		return back()->withSuccessMessage(__('general.approve_post_success'));
 	}
@@ -1881,12 +1881,11 @@ else {
 
 		$permissions = explode(',', $user->permissions);
 
-    	return view('admin.role-and-permissions-member')->with([
-				'user' => $user,
-				'permissions' => $permissions,
-			]);
-
-	}//<--- End Method
+		return view('admin.role-and-permissions-member')->with([
+			'user' => $user,
+			'permissions' => $permissions,
+		]);
+	}
 
 	public function storeRoleAndPermissions(Request $request)
 	{
@@ -1898,26 +1897,25 @@ else {
 			foreach ($request->permissions as $key) {
 
 				if (isset($request->permissions)) {
-					 $permissions[] = $key;
+					$permissions[] = $key;
 				}
 			}
 
-			$permissions = implode( ',', $permissions);
+			$permissions = implode(',', $permissions);
 		} else {
 			$permissions = 'limited_access';
 		}
 
 		$permission = $request->permission ?: 'none';
 
-    $user = User::findOrFail($request->id);
-	  $user->role = $request->role;
+		$user = User::findOrFail($request->id);
+		$user->role = $request->role;
 		$user->permission = $request->role == 'admin' ? $permission : 'none';
 		$user->permissions = $request->role == 'admin' ? $permissions : null;
-    $user->save();
+		$user->save();
 
-    return back()->withSuccessMessage(__('admin.success_update'));
-
-	}//<--- End Method
+		return back()->withSuccessMessage(__('admin.success_update'));
+	}
 
 	public function saveLiveStreaming(Request $request)
 	{
@@ -1928,10 +1926,14 @@ else {
 		$this->settings->live_streaming_free          = $request->live_streaming_free;
 		$this->settings->limit_live_streaming_paid    = $request->limit_live_streaming_paid;
 		$this->settings->limit_live_streaming_free    = $request->limit_live_streaming_free;
-    $this->settings->save();
+		$this->settings->live_streaming_private    = $request->live_streaming_private;
+		$this->settings->live_streaming_minimum_price_private    = $request->live_streaming_minimum_price_private;
+		$this->settings->live_streaming_max_price_private    = $request->live_streaming_max_price_private;
+		$this->settings->limit_live_streaming_private    = $request->limit_live_streaming_private;
+		$this->settings->save();
 
 		return back()->withSuccessMessage(__('admin.success_update'));
-	}//<--- End Method
+	}
 
 	public function referrals()
 	{
@@ -1942,7 +1944,7 @@ else {
 
 	public function shopStore(Request $request)
 	{
-		if (! $request->custom_content && ! $request->physical_products && ! $request->digital_product_sale) {
+		if (!$request->custom_content && !$request->physical_products && !$request->digital_product_sale) {
 			return back()->withErrors([
 				'errors' => __('general.error_type_sale')
 			]);
@@ -1951,7 +1953,7 @@ else {
 		$rules = [
 			'min_price_product' => 'required|numeric|min:1',
 			'max_price_product' => 'required|numeric|min:1',
-        ];
+		];
 
 		$this->validate($request, $rules);
 
@@ -1961,10 +1963,10 @@ else {
 		$this->settings->digital_product_sale = $request->digital_product_sale;
 		$this->settings->custom_content = $request->custom_content;
 		$this->settings->physical_products = $request->physical_products;
-    $this->settings->save();
+		$this->settings->save();
 
 		return back()->withSuccessMessage(__('admin.success_update'));
-	}//<--- End Method
+	}
 
 	public function products()
 	{
@@ -1979,22 +1981,22 @@ else {
 
 		$path = config('path.shop');
 
-    // Delete Notifications
-    Notifications::whereType(15)->whereTarget($item->id)->delete();
+		// Delete Notifications
+		Notifications::whereType(15)->whereTarget($item->id)->delete();
 
-    // Delete Preview
-    foreach ($item->previews as $previews) {
-      Storage::delete($path.$previews->name);
-    }
+		// Delete Preview
+		foreach ($item->previews as $previews) {
+			Storage::delete($path . $previews->name);
+		}
 
-    // Delete file
-    Storage::delete($path.$item->file);
+		// Delete file
+		Storage::delete($path . $item->file);
 
-    // Delete purchases
-    $item->purchases()->delete();
+		// Delete purchases
+		$item->purchases()->delete();
 
-    // Delete item
-    $item->delete();
+		// Delete item
+		$item->delete();
 
 		return back();
 	}
@@ -2007,57 +2009,55 @@ else {
 	}
 
 	public function salesRefund($id)
-  {
-    $purchase = Purchases::findOrFail($id);
+	{
+		$purchase = Purchases::findOrFail($id);
 
-        if ($purchase) {
+		if ($purchase) {
+			$amount = $purchase->transactions()->amount;
 
-          $amount = $purchase->transactions()->amount;
+			$taxes = TaxRates::whereIn('id', collect(explode('_', $purchase->transactions()->taxes)))->get();
+			$totalTaxes = ($amount * $taxes->sum('percentage') / 100);
 
-          $taxes = TaxRates::whereIn('id', collect(explode('_', $purchase->transactions()->taxes)))->get();
-          $totalTaxes = ($amount * $taxes->sum('percentage') / 100);
+			// Total paid by buyer
+			$amountRefund = number_format($amount + $purchase->transactions()->transaction_fee + $totalTaxes, 2, '.', '');
 
-          // Total paid by buyer
-          $amountRefund = number_format($amount + $purchase->transactions()->transaction_fee + $totalTaxes, 2, '.', '');
+			// Get amount referral (if exist)
+			$referralTransaction = ReferralTransactions::whereTransactionsId($purchase->transactions()->id)->first();
 
-          // Get amount referral (if exist)
-          $referralTransaction = ReferralTransactions::whereTransactionsId($purchase->transactions()->id)->first();
+			if ($purchase->transactions()->referred_commission && $referralTransaction) {
+				User::find($referralTransaction->referred_by)->decrement('balance', $referralTransaction->earnings);
 
-          if ($purchase->transactions()->referred_commission && $referralTransaction) {
-            User::find($referralTransaction->referred_by)->decrement('balance', $referralTransaction->earnings);
+				// Delete $referralTransaction
+				$referralTransaction->delete();
+			}
 
-            // Delete $referralTransaction
-            $referralTransaction->delete();
-          }
+			// Add funds to wallet buyer
+			$purchase->user()->increment('wallet', $amountRefund);
 
-          // Add funds to wallet buyer
-          $purchase->user()->increment('wallet', $amountRefund);
+			// User Balnce Current
+			$userBalance = $purchase->products()->user()->balance;
 
-          // User Balnce Current
-					$userBalance = $purchase->products()->user()->balance;
+			// If the creator has withdrawn their entire balance remove from withdrawal
+			$withdrawalPending = Withdrawals::whereUserId($purchase->products()->user()->id)->whereStatus('pending')->first();
 
-					// If the creator has withdrawn their entire balance remove from withdrawal
-					$withdrawalPending = Withdrawals::whereUserId($purchase->products()->user()->id)->whereStatus('pending')->first();
+			// Remove creator funds
+			if ($userBalance <> 0.00) {
+				$purchase->products()->user()->decrement('balance', $purchase->transactions()->earning_net_user);
+			} elseif ($withdrawalPending) {
+				$withdrawalPending->decrement('amount', $amountRefund);
+			} elseif ($userBalance == 0.00 && !$withdrawalPending) {
+				$purchase->products()->user()->decrement('balance', $purchase->transactions()->earning_net_user);
+			}
 
-					// Remove creator funds
-          if ($userBalance <> 0.00) {
-            $purchase->products()->user()->decrement('balance', $purchase->transactions()->earning_net_user);
-          } elseif ($withdrawalPending) {
-              $withdrawalPending->decrement('amount', $amountRefund);
-          } elseif ($userBalance == 0.00 && ! $withdrawalPending) {
-          	$purchase->products()->user()->decrement('balance', $purchase->transactions()->earning_net_user);
-          }
+			// Delete transaction
+			$purchase->transactions()->delete();
 
-          // Delete transaction
-          $purchase->transactions()->delete();
+			// Delete purchase
+			$purchase->delete();
+		}
 
-          // Delete purchase
-          $purchase->delete();
-
-        }
-
-        return back()->withSuccessMessage(__('general.refund_success'));
-  }// end salesRefund
+		return back()->withSuccessMessage(__('general.refund_success'));
+	} // end salesRefund
 
 	// START
 	public function shopCategories()
@@ -2066,23 +2066,23 @@ else {
 		$totalCategories = count($categories);
 
 		return view('admin.shop-categories', compact('categories', 'totalCategories'));
-	}//<--- END METHOD
+	}
 
 	public function addShopCategories()
 	{
 		return view('admin.add-shop-categories');
-	}//<--- END METHOD
+	}
 
 	public function storeShopCategories(Request $request)
 	{
-		Validator::extend('ascii_only', function($attribute, $value, $parameters){
-    		return !preg_match('/[^x00-x7F\-]/i', $value);
+		Validator::extend('ascii_only', function ($attribute, $value, $parameters) {
+			return !preg_match('/[^x00-x7F\-]/i', $value);
 		});
 
 		$rules = [
-          'name'        => 'required',
-	        'slug'        => 'required|ascii_only',
-        ];
+			'name'        => 'required',
+			'slug'        => 'required|ascii_only',
+		];
 
 		$this->validate($request, $rules);
 
@@ -2093,32 +2093,30 @@ else {
 
 		\Session::flash('success_message', __('admin.success_add_category'));
 
-    	return redirect('panel/admin/shop-categories');
-
-	}//<--- END METHOD
+		return redirect('panel/admin/shop-categories');
+	}
 
 	public function editShopCategories($id)
 	{
 		$categories = ShopCategories::find($id);
 
 		return view('admin.edit-shop-categories')->with('categories', $categories);
-
-	}//<--- END METHOD
+	}
 
 	public function updateShopCategories(Request $request)
 	{
 		$categories = ShopCategories::findOrFail($request->id);
 
-		Validator::extend('ascii_only', function($attribute, $value, $parameters){
-    		return !preg_match('/[^x00-x7F\-]/i', $value);
+		Validator::extend('ascii_only', function ($attribute, $value, $parameters) {
+			return !preg_match('/[^x00-x7F\-]/i', $value);
 		});
 
 		$rules = [
-          'name'        => 'required',
-	        'slug'        => 'required|ascii_only',
-	     ];
+			'name'        => 'required',
+			'slug'        => 'required|ascii_only',
+		];
 
-			 $this->validate($request, $rules);
+		$this->validate($request, $rules);
 
 		// UPDATE CATEGORY
 		$categories->name   = $request->name;
@@ -2127,29 +2125,27 @@ else {
 
 		\Session::flash('success_message', __('general.success_update'));
 		return redirect('panel/admin/shop-categories');
-
-	}//<--- END METHOD
+	}
 
 	public function deleteShopCategories($id)
 	{
-			$categories   = ShopCategories::findOrFail($id);
+		$categories   = ShopCategories::findOrFail($id);
 
-			$userCategory = Products::where('category', $id)->update(['category' => null]);
+		$userCategory = Products::where('category', $id)->update(['category' => null]);
 
-			// Delete Category
-			$categories->delete();
+		// Delete Category
+		$categories->delete();
 
-			return redirect('panel/admin/shop-categories');
-	}//<--- END METHOD
+		return redirect('panel/admin/shop-categories');
+	}
 
 	public function testSMTP()
 	{
 		try {
-				Mail::raw('Hi, Testing SMTP...', function ($mail) {
-		    $mail->from($this->settings->email_no_reply)
-		        ->to($this->settings->email_admin)
-						->subject('Testing SMTP...');
-
+			Mail::raw('Hi, Testing SMTP...', function ($mail) {
+				$mail->from($this->settings->email_no_reply)
+					->to($this->settings->email_admin)
+					->subject('Testing SMTP...');
 			});
 		} catch (\Exception $e) {
 			return back()->withErrors([
@@ -2157,9 +2153,8 @@ else {
 			]);
 		}
 
-		return back()->withSuccessMessage(__('general.send_success').' -- '.$this->settings->email_admin);
-
-	}//<--- END METHOD
+		return back()->withSuccessMessage(__('general.send_success') . ' -- ' . $this->settings->email_admin);
+	}
 
 	public function savePushNotifications(Request $request)
 	{
@@ -2169,130 +2164,130 @@ else {
 		$this->settings->save();
 
 		return back()->withSuccessMessage(__('admin.success_update'));
-	}//<--- End Method
+	}
 
-	  /**
+	/**
 	 * Get data Earnings Dashboard Admin
 	 *
 	 * @return Response
 	 */
 	public function getDataChart(Request $request)
 	{
-	  if (! $request->expectsJson()) {
-		abort(401);
-	  }
-  
-	  switch ($request->range) {
-		case 'month':
-		  $month = date('m');
-		  $year  = date('Y');
-		  $daysMonth = Helper::daysInMonth($month, $year);
-		  $dateFormat = "$year-$month-";
-  
-		  $monthFormat  = __("months.$month");
-		  $currencySymbol = $this->settings->currency_symbol;
-  
-		  for ($i=1; $i <= $daysMonth; ++$i) {
-			$date = date('Y-m-d', strtotime($dateFormat.$i));
-			$payments = Transactions::whereDate('created_at', '=', $date)->sum('earning_net_admin');
-			
-			$monthsData[] =  "$monthFormat $i";
-			$earningNetUser = $payments;
-			$earningNetUserSum[] = $earningNetUser;
-		  }
-  
-		  $label = $monthsData;
-		  $data = $earningNetUserSum;
-  
-		  break;
-  
-		  case 'last-month':
-			$month = date('m', strtotime('-1 month'));
-			$year  = date('Y');
-			$daysMonth = Helper::daysInMonth($month, $year);
-			$dateFormat = "$year-$month-";
-  
-			$monthFormat  = __("months.$month");
-			$currencySymbol = $this->settings->currency_symbol;
-  
-			for ($i=1; $i <= $daysMonth; ++$i) {
-			  $date = date('Y-m-d', strtotime($dateFormat.$i));
-			  $payments = Transactions::whereDate('created_at', '=', $date)->sum('earning_net_admin');
-			  
-			  $monthsData[] =  "$monthFormat $i";
-			  $earningNetUser = $payments;
-			  $earningNetUserSum[] = $earningNetUser;
-			}
-			
-			$label = $monthsData;
-			$data = $earningNetUserSum;
-  
-			break;
-  
+		if (!$request->expectsJson()) {
+			abort(401);
+		}
+
+		switch ($request->range) {
+			case 'month':
+				$month = date('m');
+				$year  = date('Y');
+				$daysMonth = Helper::daysInMonth($month, $year);
+				$dateFormat = "$year-$month-";
+
+				$monthFormat  = __("months.$month");
+				$currencySymbol = $this->settings->currency_symbol;
+
+				for ($i = 1; $i <= $daysMonth; ++$i) {
+					$date = date('Y-m-d', strtotime($dateFormat . $i));
+					$payments = Transactions::whereDate('created_at', '=', $date)->sum('earning_net_admin');
+
+					$monthsData[] =  "$monthFormat $i";
+					$earningNetUser = $payments;
+					$earningNetUserSum[] = $earningNetUser;
+				}
+
+				$label = $monthsData;
+				$data = $earningNetUserSum;
+
+				break;
+
+			case 'last-month':
+				$month = date('m', strtotime('-1 month'));
+				$year  = date('Y');
+				$daysMonth = Helper::daysInMonth($month, $year);
+				$dateFormat = "$year-$month-";
+
+				$monthFormat  = __("months.$month");
+				$currencySymbol = $this->settings->currency_symbol;
+
+				for ($i = 1; $i <= $daysMonth; ++$i) {
+					$date = date('Y-m-d', strtotime($dateFormat . $i));
+					$payments = Transactions::whereDate('created_at', '=', $date)->sum('earning_net_admin');
+
+					$monthsData[] =  "$monthFormat $i";
+					$earningNetUser = $payments;
+					$earningNetUserSum[] = $earningNetUser;
+				}
+
+				$label = $monthsData;
+				$data = $earningNetUserSum;
+
+				break;
+
 			case 'year':
-			  $year  = date('Y');
-			  $dateFormat = "$year-";
-			  $currencySymbol = $this->settings->currency_symbol;
-  
-			  for ($i=1; $i <= 12; ++$i) {
-				$month = str_pad($i, 2, "0", STR_PAD_LEFT);
-				$date = date('Y-m', strtotime($dateFormat.$month));
-				$payments = Transactions::where('created_at', 'LIKE', '%'.$date.'%')->sum('earning_net_admin');
-				
-				$monthsData[] =  __("months.$month");
-				$earningNetUser = $payments;
-				$earningNetUserSum[] = $earningNetUser;
-			  }
-  
-			  $label = $monthsData;
-			  $data = $earningNetUserSum;
-			  break;
-		
-		default:
-  
+				$year  = date('Y');
+				$dateFormat = "$year-";
+				$currencySymbol = $this->settings->currency_symbol;
+
+				for ($i = 1; $i <= 12; ++$i) {
+					$month = str_pad($i, 2, "0", STR_PAD_LEFT);
+					$date = date('Y-m', strtotime($dateFormat . $month));
+					$payments = Transactions::where('created_at', 'LIKE', '%' . $date . '%')->sum('earning_net_admin');
+
+					$monthsData[] =  __("months.$month");
+					$earningNetUser = $payments;
+					$earningNetUserSum[] = $earningNetUser;
+				}
+
+				$label = $monthsData;
+				$data = $earningNetUserSum;
+				break;
+
+			default:
+
+				return response()->json([
+					'success' => false
+				], 401);
+
+				break;
+		}
+
 		return response()->json([
-		  'success' => false
-		], 401);
-  
-		  break;
-	  }
-  
-	  return response()->json([
-		'success' => true,
-		'labels'  => $label,
-		'datasets' => $data
+			'success' => true,
+			'labels'  => $label,
+			'datasets' => $data
 		]);
 	}
 
 	public function clearCache()
 	{
-		 // Clear Cache, Config and Views
-		 \Artisan::call('cache:clear');
-		 \Artisan::call('config:clear');
-		 \Artisan::call('view:clear');
+		// Clear Cache, Config and Views
+		\Artisan::call('cache:clear');
+		\Artisan::call('config:clear');
+		\Artisan::call('view:clear');
 
-		 $pathLogFile = storage_path("logs".DIRECTORY_SEPARATOR."laravel.log");
+		$pathLogFile = storage_path("logs" . DIRECTORY_SEPARATOR . "laravel.log");
 
-		 try {
+		try {
 			collect(Storage::disk('default')->listContents('.cache', true))
-				->each(function($file) {
-				Storage::disk('default')->deleteDirectory($file['path']);
-				Storage::disk('default')->delete($file['path']);
-			});
+				->each(function ($file) {
+					Storage::disk('default')->deleteDirectory($file['path']);
+					Storage::disk('default')->delete($file['path']);
+				});
 
 			// Delete Log file
 			if (auth()->user()->isSuperAdmin()) {
 				if (file_exists($pathLogFile)) {
 					unlink($pathLogFile);
 				}
+				\Artisan::call('queue:restart');
 			}
-			
-		  } catch (\Exception $e) {}
+		} catch (\Exception $e) {
+		}
 
-		  return redirect('panel/admin/maintenance/mode')
-			->withSuccessMessage(trans('general.successfully_cleaned'));
-
-	}// End method
+		return redirect('panel/admin/maintenance/mode')
+			->withSuccessMessage(__('general.successfully_cleaned'));
+	}
 
 	public function saveStoriesSettings(Request $request)
 	{
@@ -2303,25 +2298,23 @@ else {
 		$this->settings->save();
 
 		return back()->withSuccessMessage(__('admin.success_update'));
-	}//<--- End Method
+	}
 
 	public function storiesPosts()
 	{
-		$data = Stories::latest()->paginate(20);
-
-		return view('admin.stories-posts', ['data' => $data]);
+		return view('admin.stories-posts', ['data' => Stories::latest()->paginate(20)]);
 	}
 
 	public function deleteStory($id)
 	{
 		$pathStories = config('path.stories');
-        $story = Stories::findOrFail($id);
-        $media = $story->media;
+		$story = Stories::findOrFail($id);
+		$media = $story->media;
 
 		//Delete Views
 		$media[0]->views()->delete();
 		//Delete Media
-		Storage::delete($pathStories.$media[0]->name);
+		Storage::delete($pathStories . $media[0]->name);
 		$media[0]->delete();
 		//Delete Story
 		$story->delete();
@@ -2338,25 +2331,25 @@ else {
 	public function addStoryBackground(Request $request)
 	{
 		$temp  = 'public/temp/';
-	  	$path  = 'public/img/stories-bg/';
+		$path  = 'public/img/stories-bg/';
 
-		  $request->validate([
+		$request->validate([
 			'image' => 'required|mimes:jpg,png,jpe,jpeg'
-		  ]);
+		]);
 
 		if ($request->hasFile('image')) {
 			$extension = $request->file('image')->getClientOriginalExtension();
-			$file = str_random(5).time().'.'.$extension;
-	
-			if ($request->file('image')->move($temp, $file)) {
-				\File::copy($temp.$file, $path.$file);
-				\File::delete($temp.$file);
-				}// End File
+			$file = str_random(5) . time() . '.' . $extension;
 
-				$sql = new StoryBackgrounds();
-				$sql->name = $file;
-				$sql->save();
-			} // HasFile
+			if ($request->file('image')->move($temp, $file)) {
+				\File::copy($temp . $file, $path . $file);
+				\File::delete($temp . $file);
+			} // End File
+
+			$sql = new StoryBackgrounds();
+			$sql->name = $file;
+			$sql->save();
+		} // HasFile
 
 		return back();
 	}
@@ -2366,7 +2359,7 @@ else {
 		$path  = 'public/img/stories-bg/';
 		$storyBackground = StoryBackgrounds::findOrFail($id);
 
-		\File::delete($path.$storyBackground->name);
+		\File::delete($path . $storyBackground->name);
 		$storyBackground->delete();
 
 		return back()->withSuccessMessage(__('general.success_removed'));
@@ -2393,8 +2386,80 @@ else {
 
 	public function deleteStoryFont($id)
 	{
-		$font = StoryFonts::findOrFail($id)->delete();
+		StoryFonts::findOrFail($id)->delete();
 		return back()->withSuccessMessage(__('general.success_removed'));
 	}
 
-}// End Class
+	public function comments()
+	{
+		$data = Comments::with([
+			'user:id,name,username',
+			'updates:id,user_id' => [
+				'creator:id,username'
+			]
+		])->orderBy('id', 'desc')->paginate(20);
+
+		return view('admin.comments')->withData($data);
+	}
+
+	public function deleteComment(Request $request)
+	{
+		Comments::findOrFail($request->id)->delete();
+		return back()->withSuccess(__('general.success_removed'));
+	}
+
+	public function messages()
+	{
+		$data = Messages::with([
+			'sender:id,username',
+			'receiver:id,username'
+		])
+			->whereTip('no')
+			->orderBy('id', 'desc')
+			->paginate(20);
+
+		return view('admin.messages')->withData($data);
+	}
+
+	public function replies()
+	{
+		$data = Replies::with([
+			'user:id,name,username',
+			'posts:id,user_id' => [
+				'creator:id,username'
+			]
+		])->orderBy('id', 'desc')->paginate(20);
+
+		return view('admin.replies')->withData($data);
+	}
+
+	public function deleteReply(Request $request)
+	{
+		Replies::findOrFail($request->id)->delete();
+		return back()->withSuccess(__('general.success_removed'));
+	}
+
+	public function saveVideoEncoding(Request $request)
+	{
+		$sql = $this->settings;
+		$sql->watermark_on_videos = $request->watermark_on_videos ?? 'off';
+		$sql->video_encoding = $request->video_encoding ?? 'off';
+		$sql->encoding_method = $request->encoding_method;
+		$sql->coconut_key = $request->coconut_key;
+		$sql->watermark_position = $request->watermark_position;
+		$sql->save();
+
+		// Save path FFMPEG
+		Helper::envUpdate('FFMPEG_BINARIES', $request->ffmpeg_path);
+		Helper::envUpdate('FFPROBE_BINARIES', $request->ffprobe_path);
+
+		return back()->withSuccessMessage(__('admin.success_update'));
+	}
+
+	public function liveStreamingPrivateRequests()
+	{
+		return view('admin.live-streaming-private-requests', [
+			'lives' => LiveStreamingPrivateRequest::latest()->paginate(15)
+		]);
+	}
+}

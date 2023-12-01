@@ -270,6 +270,17 @@
 		          </div>
 		        </div>
 
+				<div class="row mb-3">
+					<label class="col-sm-2 col-form-labe text-lg-end">{{ __('users.payout_method') }} (Bitcoin)</label>
+					<div class="col-sm-10">
+					  <select name="payout_method_crypto" class="form-select">
+					<option @if ($settings->payout_method_crypto == 'on') selected="selected" @endif value="on">{{ __('general.enabled') }}</option>
+					<option @if ($settings->payout_method_crypto == 'off') selected="selected" @endif value="off">{{ __('general.disabled') }}</option>
+				  </select>
+					  <small class="d-block">{{ trans('general.payout_method_desc') }}</small>
+					</div>
+				  </div>
+
 						<div class="row mb-3">
 		          <label class="col-sm-2 col-form-labe text-lg-end">{{ __('general.wallet') }}</label>
 		          <div class="col-sm-10">

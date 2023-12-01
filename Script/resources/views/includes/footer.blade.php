@@ -21,12 +21,13 @@
           || $settings->telegram != ''
           || $settings->reddit != ''
           || $settings->linkedin != ''
+          || $settings->threads != ''
           )
       <div class="w-100">
         <span class="w-100">{{trans('general.keep_connect_with_us')}} {{trans('general.follow_us_social')}}</span>
         <ul class="list-inline list-social m-0">
           @if ($settings->twitter != '')
-          <li class="list-inline-item"><a href="{{$settings->twitter}}" target="_blank" class="ico-social"><i class="fab fa-twitter"></i></a></li>
+          <li class="list-inline-item"><a href="{{$settings->twitter}}" target="_blank" class="ico-social"><i class="bi-twitter-x"></i></a></li>
         @endif
 
         @if ($settings->facebook != '')
@@ -50,23 +51,27 @@
           @endif
 
           @if ($settings->tiktok != '')
-          <li class="list-inline-item"><a href="{{$settings->tiktok}}" target="_blank" class="ico-social"><i class="bi bi-tiktok"></i></a></li>
+          <li class="list-inline-item"><a href="{{$settings->tiktok}}" target="_blank" class="ico-social"><i class="bi-tiktok"></i></a></li>
           @endif
 
           @if ($settings->snapchat != '')
-          <li class="list-inline-item"><a href="{{$settings->snapchat}}" target="_blank" class="ico-social"><i class="bi bi-snapchat"></i></a></li>
+          <li class="list-inline-item"><a href="{{$settings->snapchat}}" target="_blank" class="ico-social"><i class="bi-snapchat"></i></a></li>
           @endif
 
           @if ($settings->telegram != '')
-          <li class="list-inline-item"><a href="{{$settings->telegram}}" target="_blank" class="ico-social"><i class="bi bi-telegram"></i></a></li>
+          <li class="list-inline-item"><a href="{{$settings->telegram}}" target="_blank" class="ico-social"><i class="bi-telegram"></i></a></li>
           @endif
 
           @if ($settings->reddit != '')
-          <li class="list-inline-item"><a href="{{$settings->reddit}}" target="_blank" class="ico-social"><i class="bi bi-reddit"></i></a></li>
+          <li class="list-inline-item"><a href="{{$settings->reddit}}" target="_blank" class="ico-social"><i class="bi-reddit"></i></a></li>
           @endif
 
           @if ($settings->linkedin != '')
-          <li class="list-inline-item"><a href="{{$settings->linkedin}}" target="_blank" class="ico-social"><i class="bi bi-linkedin"></i></a></li>
+          <li class="list-inline-item"><a href="{{$settings->linkedin}}" target="_blank" class="ico-social"><i class="bi-linkedin"></i></a></li>
+          @endif
+
+          @if ($settings->threads != '')
+          <li class="list-inline-item"><a href="{{$settings->threads}}" target="_blank" class="ico-social"><i class="bi-threads"></i></a></li>
           @endif
         </ul>
       </div>
@@ -191,6 +196,12 @@
     @endauth
       <div class="col-md-12 copyright @auth d-none d-lg-block @endauth">
         &copy; {{date('Y')}} {{$settings->title}}, {{__('emails.rights_reserved')}}
+
+        @if ($settings->show_address_company_footer)
+        <small class="ml-2">
+          {{ $settings->company }} - {{ __('general.address') }}: {{ $settings->address }} {{ $settings->city }} {{ $settings->country }}
+        </small>
+        @endif
       </div>
     </div>
   </div>

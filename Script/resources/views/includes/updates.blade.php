@@ -1,5 +1,6 @@
-@foreach ($updates as $response)
-
+@include('includes.advertising')
+  
+  @foreach ($updates as $response)
 		@php
 			if (auth()->check()) {
 				$checkUserSubscription = auth()->user()->checkSubscription($response->creator);
@@ -53,6 +54,12 @@
 		@if ($response->status == 'pending')
 			<h6 class="text-muted w-100 mb-4">
 				<i class="bi bi-eye-fill mr-1"></i> <em>{{ __('general.post_pending_review') }}</em>
+			</h6>
+		@endif
+
+		@if ($response->status == 'schedule')
+			<h6 class="text-muted w-100 mb-4">
+				<i class="bi-calendar-fill mr-1"></i> <em>{{ __('general.date_schedule') }} {{ Helper::formatDateSchedule($response->scheduled_date) }}</em>
 			</h6>
 		@endif
 
@@ -183,23 +190,23 @@
 
 										@if ($response->price == 0.00)
 										<button type="button" class="btn btn-upload btn-tooltip e-none align-bottom setPrice @if (auth()->user()->dark_mode == 'off') text-primary @else text-white @endif rounded-pill" data-toggle="tooltip" data-placement="top" title="{{__('general.price_post_ppv')}}">
-											<i class="feather icon-tag f-size-25"></i>
+											<i class="feather icon-tag f-size-25 align-bottom"></i>
 										</button>
 									@endif
 
 									@if ($response->price == 0.00)
 										<button type="button" class="contentLocked btn e-none align-bottom @if (auth()->user()->dark_mode == 'off') text-primary @else text-white @endif rounded-pill btn-upload btn-tooltip {{$response->locked == 'yes' ? '' : 'unlock'}}" data-toggle="tooltip" data-placement="top" title="{{__('users.locked_content')}}">
-											<i class="feather icon-{{$response->locked == 'yes' ? '' : 'un'}}lock f-size-25"></i>
+											<i class="feather align-bottom icon-{{$response->locked == 'yes' ? '' : 'un'}}lock f-size-25"></i>
 										</button>
 									@endif
 
 								@if ($mediaCount == 0 && $response->locked == 'yes')
 									<button type="button" class="btn btn-upload btn-tooltip e-none align-bottom @if ($response->title) btn-active-hover @endif setTitle @if (auth()->user()->dark_mode == 'off') text-primary @else text-white @endif rounded-pill" data-toggle="tooltip" data-placement="top" title="{{__('general.title_post_block')}}">
-										<i class="bi-type f-size-25"></i>
+										<i class="bi-type align-bottom f-size-25"></i>
 									</button>
 								@endif
 
-										<div class="d-inline-block float-right mt-3">
+										<div class="d-inline-block float-right mt-1">
 											<button type="submit" class="btn btn-sm btn-primary rounded-pill float-right btnEditUpdate"><i></i> {{__('users.save')}}</button>
 										</div>
 
@@ -285,6 +292,8 @@
                     <option value="privacy_issue">{{__('admin.privacy_issue')}}</option>
                     <option value="violent_sexual">{{__('admin.violent_sexual_content')}}</option>
                   </select>
+
+				  <textarea name="message" rows="" cols="40" maxlength="200" placeholder="{{__('general.message')}} ({{ __('general.optional') }})" class="form-control mt-2 textareaAutoSize"></textarea>
                   </div><!-- /.form-group-->
 				      </div><!-- Modal body -->
 
@@ -352,9 +361,10 @@
 	|| $response->locked == 'no'
 	)
 	<div class="card-body pt-0 pb-3">
-		<p class="mb-0 update-text position-relative text-word-break">
+		<p class="mb-0 truncated position-relative text-word-break">
 			{!! Helper::linkText(Helper::checkText($response->description, $isVideoEmbed ?? null)) !!}
 		</p>
+		<a href="javascript:void(0);" class="display-none link-border">{{ __('general.view_all') }}</a>
 	</div>
 
 @else
@@ -396,7 +406,7 @@
 		@foreach ($response->media as $media)
 			@if ($media->music != '')
 			<div class="mx-3 border rounded @if ($mediaCount > 1) mt-3 @endif">
-				<audio id="music-{{$media->id}}" class="js-player w-100 @if (!request()->ajax())invisible @endif" controls>
+				<audio id="music-{{$media->id}}" preload="metadata" class="js-player w-100 @if (!request()->ajax())invisible @endif" controls>
 					<source src="{{ Helper::getFile(config('path.music').$media->music) }}" type="audio/mp3">
 					Your browser does not support the audio tag.
 				</audio>
@@ -544,7 +554,7 @@
 				<i class="@if($likeActive)fas @else far @endif fa-heart"></i>
 			</a>
 
-			<span class="text-muted mr-14px @auth @if (! isset($inPostDetail) && $buttonLike) pulse-btn toggleComments @endif @endauth">
+			<span class="@auth @if (auth()->user()->checkRestriction($response->creator->id)) buttonDisabled @else text-muted @endif @else text-muted @endauth disabled mr-14px @auth @if (! isset($inPostDetail) && $buttonLike) pulse-btn toggleComments @endif @endauth">
 				<i class="far fa-comment"></i>
 			</span>
 
@@ -572,7 +582,7 @@
 								</div>
 								<div class="col-md-3 col-6 mb-3">
 									<a href="https://twitter.com/intent/tweet?url={{url($response->creator->username.'/post', $response->id).Helper::referralLink()}}&text={{ e( $response->creator->hide_name == 'yes' ? $response->creator->username : $response->creator->name ) }}" data-url="{{url($response->creator->username.'/post', $response->id)}}" class="social-share text-muted d-block text-center h6" target="_blank" title="Twitter">
-										<i class="fab fa-twitter twitter-btn"></i> <span class="btn-block mt-3">Twitter</span>
+										<i class="bi-twitter-x text-dark"></i> <span class="btn-block mt-3">Twitter</span>
 									</a>
 								</div>
 								<div class="col-md-3 col-6 mb-3">

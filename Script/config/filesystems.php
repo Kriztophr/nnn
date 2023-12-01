@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('FILESYSTEM_DRIVER', 'local'),
+    'default' => env('FILESYSTEM_DRIVER', 'default'),
 
     /*
     |--------------------------------------------------------------------------
@@ -100,7 +100,6 @@ return [
             'visibility' => 'public',
             'endpoint' => env('VULTR_ENDPOINT'),
         ],
-
     ],
 
     /*

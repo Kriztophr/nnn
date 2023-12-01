@@ -34,7 +34,7 @@
             <p class="lead">Documentation</p>
             <h1 class="jumbotron-title">Sponzy - Support Creators Content Script</h1>
               <p class="lead mb-0" id="tableContent">Created:  03, September 2020 by Miguel Vasquez</p>
-              <small class="mb-0">Last update 11, August 2023</small>
+              <small class="mb-0">Last update 29, November 2023</small>
           </div>
         </div>
       </div>
@@ -65,6 +65,7 @@
               <li><a href="#Customize" class="scroll-element"><i class="fas fa-angle-right mr-1"></i> Customize</a></li>
               <li><a href="#Troubleshooting" class="scroll-element"><i class="fas fa-angle-right mr-1"></i> Troubleshooting</a></li>
               <li><a href="#Permissions" class="scroll-element"><i class="fas fa-angle-right mr-1"></i> Folders Permissions</a></li>
+              <li><a href="#update" class="scroll-element"><i class="fas fa-angle-right mr-1"></i> How to update</a></li>
               <li><a href="#Sources" class="scroll-element"><i class="fas fa-angle-right mr-1"></i> Sources and Credits</a></li>
   					</ul><!-- /.ul list-cgl -->
           </div>
@@ -207,8 +208,8 @@
           </div>
 
           <h2 class="title2" id="ConfigurationPHP">Basic PHP configuration</h2>
-            <li><code>max_execution_time</code> minimum 6000</li>
-            <li><code>memory_limit</code> set to 512M</li>
+            <li><code>max_execution_time</code> minimum 12000</li>
+            <li><code>memory_limit</code> set to 900M</li>
         		<li><code>post_max_size</code> set the maximum upload value you want</li>
             <li><code>upload_max_filesize</code> must be the same maximum value of <code>post_max_size</code></li>
             <hr />
@@ -702,6 +703,15 @@ return array(
 
           <li>The key identifier will be the Slug / URL of the category</li>
 
+          <h2 class="title2 mt-4">Path the files</h2>
+          <li>Home page: <code>resources > views > index > home.blade.php</code> </li>
+          <li>Home Login: <code>resources > views > index > home-login.blade.php</code> </li>
+          <li>Home - Logged in user: <code>resources > views > index > home-session.blade.php</code> </li>
+          <li>Creators: <code>resources > views > index > creators.blade.php</code> </li>
+          <li>Profile user: <code>resources > views > users > profile.blade.php</code> </li>
+          <li>Edit my page: <code>resources > views > users > edit_my_page.blade.php</code> </li>
+          
+
           <h2 class="title2 mt-4">Translate Pages</h2>
           <li>Just create a page by selecting the new language, remember that you must put the same Slug / URL</li>
 
@@ -728,6 +738,9 @@ return array(
         <li><strong>Admin login when Disable registration/Email login is enabled</strong></li>
         <li class="mb-4">URL: <code>https://yourwebsite.com/login/admin</code></li>
 
+        <li><strong>Twitter Login Error</strong></li>
+        <li class="mb-4">The app must be created using version 1.0</li>
+
       <hr />
 
           <h2 class="title2" id="Permissions">Make sure these folders and files have 0755 permissions <a href="#tableContent" class="scroll-element" title="Go Top"><i class="fas fa-arrow-up"></i></a></h2>
@@ -740,6 +753,11 @@ return array(
             <li>public / temp /</li>
             <li>public / uploads /</li>
             <li>storage</li>
+            <hr />
+
+            <h2 class="title2" id="update">How to update <a href="#tableContent" class="scroll-element" title="Go Top"><i class="fas fa-arrow-up"></i></a></h2>
+            <li>Go to the <code><strong>Upgrades</strong></code> folder, select the version you want, click on the <strong>README.html</strong> file and follow the steps.</li>
+
             <hr />
 
           <h2 id="Sources" class="title2">Sources and Credits <a href="#tableContent" class="scroll-element" title="Go Top"><i class="fas fa-arrow-up"></i></a></h2>

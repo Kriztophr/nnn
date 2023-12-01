@@ -198,6 +198,17 @@
 						<div class="row mb-3">
 							<div class="col-sm-10 offset-sm-2">
 								<div class="form-check">
+									<input class="form-check-input check" name="permissions[]" value="live_streaming_private_requests" @if (isset($permissions) && in_array('live_streaming_private_requests', $permissions)) checked="checked" @endif type="checkbox" id="live_streaming_private_requests">
+									<label class="form-check-label" for="live_streaming_private_requests">
+										{{ __('general.live_streaming_private_requests') }}
+									</label>
+								</div>
+							</div>
+						</div>
+
+						<div class="row mb-3">
+							<div class="col-sm-10 offset-sm-2">
+								<div class="form-check">
 									<input class="form-check-input check" name="permissions[]" value="push_notifications" @if (isset($permissions) && in_array('push_notifications', $permissions)) checked="checked" @endif type="checkbox" id="push_notifications">
 									<label class="form-check-label" for="push_notifications">
 										{{ __('general.push_notifications') }}
@@ -212,6 +223,28 @@
 									<input class="form-check-input check" name="permissions[]" value="stories" @if (isset($permissions) && in_array('stories', $permissions)) checked="checked" @endif type="checkbox" id="stories">
 									<label class="form-check-label" for="stories">
 										{{ __('general.stories') }}
+									</label>
+								</div>
+							</div>
+						</div>
+
+						<div class="row mb-3">
+							<div class="col-sm-10 offset-sm-2">
+								<div class="form-check">
+									<input class="form-check-input check" name="permissions[]" value="comments_replies" @if (isset($permissions) && in_array('comments_replies', $permissions)) checked="checked" @endif type="checkbox" id="comments_replies">
+									<label class="form-check-label" for="comments_replies">
+										{{ __('general.comments_replies') }}
+									</label>
+								</div>
+							</div>
+						</div>
+
+						<div class="row mb-3">
+							<div class="col-sm-10 offset-sm-2">
+								<div class="form-check">
+									<input class="form-check-input check" name="permissions[]" value="messages" @if (isset($permissions) && in_array('messages', $permissions)) checked="checked" @endif type="checkbox" id="messages">
+									<label class="form-check-label" for="messages">
+										{{ __('general.messages') }}
 									</label>
 								</div>
 							</div>
@@ -333,6 +366,17 @@
 									<input class="form-check-input check" name="permissions[]" value="members" @if (isset($permissions) && in_array('members', $permissions)) checked="checked" @endif type="checkbox" id="members">
 									<label class="form-check-label" for="members">
 										{{ __('admin.members') }}
+									</label>
+								</div>
+							</div>
+						</div>
+
+						<div class="row mb-3">
+							<div class="col-sm-10 offset-sm-2">
+								<div class="form-check">
+									<input class="form-check-input check" name="permissions[]" value="advertising" @if (isset($permissions) && in_array('advertising', $permissions)) checked="checked" @endif type="checkbox" id="advertising">
+									<label class="form-check-label" for="advertising">
+										{{ __('general.advertising') }}
 									</label>
 								</div>
 							</div>

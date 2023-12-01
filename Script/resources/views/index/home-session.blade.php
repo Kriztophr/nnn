@@ -41,7 +41,7 @@
               </span>
             </button>
 
-            <h4 class="alert-heading"><i class="bi bi-megaphone mr-2"></i> {{ trans('general.announcements') }}</h4>
+            <h4 class="alert-heading"><i class="bi bi-megaphone mr-2"></i> {{ __('general.announcements') }}</h4>
             <p class="update-text">
               {!! $settings->announcement !!}
             </p>
@@ -80,7 +80,15 @@
           <span class="btn-block mb-3">
             <i class="fa fa-photo-video ico-no-result"></i>
           </span>
-        <h4 class="font-weight-light">{{trans('general.no_posts_posted')}}</h4>
+        <h4 class="font-weight-light">{{__('general.no_posts_posted')}}</h4>
+
+          <a href="{{ url('creators') }}" class="btn btn-primary mb-3 mt-2 px-5 d-lg-none">
+            {{ __('general.explore_creators') }}
+          </a>
+
+          <a href="{{ url('explore') }}" class="btn btn-primary px-5 d-lg-none">
+            {{ __('general.explore_posts') }}
+          </a>
         </div>
 
         @endif
@@ -101,7 +109,7 @@
           							<div class="d-block">
           								<small class="media-heading text-muted btn-block margin-zero">
                             <a href="{{url('settings/page')}}">
-                  						{{ auth()->user()->verified_id == 'yes' ? trans('general.edit_my_page') : trans('users.edit_profile')}}
+                  						{{ auth()->user()->verified_id == 'yes' ? __('general.edit_my_page') : __('users.edit_profile')}}
                               <small class="pl-1"><i class="fa fa-long-arrow-alt-right"></i></small>
                             </a>
                           </small>
@@ -133,10 +141,10 @@
 @if (session('noty_error'))
   <script type="text/javascript">
    swal({
-     title: "{{ trans('general.error_oops') }}",
-     text: "{{ trans('general.already_sent_report') }}",
+     title: "{{ __('general.error_oops') }}",
+     text: "{{ __('general.already_sent_report') }}",
      type: "error",
-     confirmButtonText: "{{ trans('users.ok') }}"
+     confirmButtonText: "{{ __('users.ok') }}"
      });
      </script>
 @endif
@@ -144,10 +152,10 @@
 @if (session('noty_success'))
 <script type="text/javascript">
      swal({
-       title: "{{ trans('general.thanks') }}",
-       text: "{{ trans('general.reported_success') }}",
+       title: "{{ __('general.thanks') }}",
+       text: "{{ __('general.reported_success') }}",
        type: "success",
-       confirmButtonText: "{{ trans('users.ok') }}"
+       confirmButtonText: "{{ __('users.ok') }}"
        });
        </script>
  @endif
@@ -155,10 +163,10 @@
  @if (session('success_verify'))
  <script type="text/javascript">
     swal({
-      title: "{{ trans('general.welcome') }}",
-      text: "{{ trans('users.account_validated') }}",
+      title: "{{ __('general.welcome') }}",
+      text: "{{ __('users.account_validated') }}",
       type: "success",
-      confirmButtonText: "{{ trans('users.ok') }}"
+      confirmButtonText: "{{ __('users.ok') }}"
       });
       </script>
    @endif
@@ -166,10 +174,10 @@
    @if (session('error_verify'))
    <script type="text/javascript">
     swal({
-      title: "{{ trans('general.error_oops') }}",
-      text: "{{ trans('users.code_not_valid') }}",
+      title: "{{ __('general.error_oops') }}",
+      text: "{{ __('users.code_not_valid') }}",
       type: "error",
-      confirmButtonText: "{{ trans('users.ok') }}"
+      confirmButtonText: "{{ __('users.ok') }}"
       });
       </script>
    @endif
@@ -207,7 +215,7 @@
                 type: "{{ $media->type }}",     // photo or video
                 length: {{ $media->type == 'photo' ? 5 : ($media->video_length ?: $settings->story_max_videos_length)	}},    // photo timeout or video length in seconds - uses 3 seconds timeout for images if not set
                 src: "{{ Helper::getFile(config('path.stories').$media->name) }}",      // photo or video src
-                preview: "{{ $media->type == 'photo' ? Helper::getFile(config('path.stories').$media->name) : ($media->video_poster ? Helper::getFile(config('path.stories').$media->video_poster) : Helper::getFile(config('path.avatar').$story->user->avatar)) }}",  // optional - item thumbnail to show in the story carousel instead of the story defined image
+                preview: "{{ $media->type == 'photo' ? route('resize', ['path' => 'stories', 'file' => $media->name, 'size' => 280]) : ($media->video_poster ? route('resize', ['path' => 'stories', 'file' => $media->video_poster, 'size' => 280]) : route('resize', ['path' => 'avatar', 'file' => $story->user->avatar, 'size' => 200])) }}",  // optional - item thumbnail to show in the story carousel instead of the story defined image
                 link: "",     // a link to click on story
                 linkText: '{{ $story->title }}', // link text
                 time: {{ $media->created_at->timestamp }},     // optional a date to display with the story item. unix timestamp are converted to "time ago" format
@@ -265,9 +273,9 @@
         });
 
         function getItemStoryId(storyId) {
-          var userActive = '{{ auth()->user()->username }}';
+          let userActive = '{{ auth()->user()->username }}';
           if (userActive !== storyId) {
-            var itemId = $('#zuck-modal .story-viewer[data-story-id="'+storyId+'"]').find('.itemStory.active').data('id-story');
+            let itemId = $('#zuck-modal .story-viewer[data-story-id="'+storyId+'"]').find('.itemStory.active').data('id-story');
             insertViewStory(itemId);
           }
           insertTextStory();
@@ -277,9 +285,9 @@
 
         function insertTextStory() {
           $('.previewText').each(function() {
-          var text = $(this).find('.items>li:first-child>a').data('text');
-          var font = $(this).find('.items>li:first-child>a').data('font');
-          var color = $(this).find('.items>li:first-child>a').data('color');
+          let text = $(this).find('.items>li:first-child>a').data('text');
+          let font = $(this).find('.items>li:first-child>a').data('font');
+          let color = $(this).find('.items>li:first-child>a').data('color');
           $(this).find('.text-story-preview').css({fontFamily: font, color: color }).html(text);
         });
         }
@@ -294,8 +302,8 @@
         }
 
         $(document).on('click','.profilePhoto, .info>.name', function() {
-          var element = $(this);
-          var username = element.parents('.story-viewer').data('story-id');
+          let element = $(this);
+          let username = element.parents('.story-viewer').data('story-id');
           if (username) {
             window.location.href = URL_BASE+'/'+username;
           }

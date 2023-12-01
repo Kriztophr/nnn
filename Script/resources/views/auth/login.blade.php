@@ -5,12 +5,9 @@
 @section('content')
   <div class="jumbotron home m-0 bg-gradient">
     <div class="container pt-lg-md">
-      <div class="row">
-        <div class="col-lg-7">
-          <img src="{{url('public/img', $settings->home_index)}}" class="img-center img-fluid d-lg-block d-none">
-        </div>
+      <div class="row justify-content-center">
         <div class="col-lg-5">
-          <div class="card bg-white shadow border-0">
+          <div class="card bg-white shadow border-0 b-radio-custom">
 
             <div class="card-body px-lg-5 py-lg-5">
 
@@ -38,7 +35,7 @@
 
                 @if ($settings->twitter_login == 'on')
                 <a href="{{url('oauth/twitter')}}" class="btn btn-twitter auth-form-btn mb-2 w-100">
-                  <i class="fab fa-twitter mr-2"></i> {{ __('auth.login_with') }} Twitter
+                  <i class="bi-twitter-x mr-2"></i> {{ __('auth.login_with') }} Twitter
                 </a>
               @endif
 

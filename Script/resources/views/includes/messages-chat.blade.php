@@ -76,7 +76,7 @@
 </a>
 <div class="media-body position-relative">
   @if ($msg->price != 0.00 && ! auth()->user()->checkPayPerViewMsg($msg->id))
-    <div class="btn-block p-sm text-center content-locked mb-2 pt-lg pb-lg px-3 {{$textWhite}} custom-rounded float-left" style="{{$backgroundPostLocked}}">
+    <div class="btn-block p-sm text-center content-locked mb-2 pt-lg pb-lg px-3 {{$textWhite}} custom-rounded float-left" style="{{$backgroundPostLocked}} max-width: 500px;">
     		<span class="btn-block text-center mb-3">
           <i class="feather ico-no-result border-0 icon-lock {{$textWhite}}"></i></span>
         <a href="javascript:void(0);" data-toggle="modal" data-target="#payPerViewForm" data-mediaid="{{$msg->id}}" data-price="{{Helper::formatPrice($msg->price, true)}}" data-subtotalprice="{{Helper::formatPrice($msg->price)}}" data-pricegross="{{$msg->price}}" class="btn btn-primary w-100">

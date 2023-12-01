@@ -68,9 +68,9 @@
 										</td>
 
 										<td>
-											@if (isset($story->user()->username))
-												<a href="{{url($story->user()->username)}}" target="_blank">
-													{{$story->user()->username}} <i class="fa fa-external-link-square-alt"></i>
+											@if (isset($story->user->username))
+												<a href="{{url($story->user->username)}}" target="_blank">
+													{{$story->user->username}} <i class="fa fa-external-link-square-alt"></i>
 												</a>
 											@else
 												<em>{{ trans('general.no_available') }}</em>

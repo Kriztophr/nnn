@@ -32,7 +32,6 @@ body a:focus {
 }
 body {
   font-family: 'Barlow', Helvetica, Arial, sans-serif;
-  background-color: #fafbfe;
 }
 h1, h2, h3, h4, h5, h6 {
   font-weight: 800 !important;
@@ -436,4 +435,56 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 300;
   left: 0;
   top: 0;
+}
+/* Version 5.0 */
+[data-bs-theme=dark] .link-dark, 
+[data-bs-theme=dark] .text-dark
+{
+  color: #fff !important;
+}
+[data-bs-theme=dark] .btn-white 
+{
+  background-color: #000 !important;
+  color: #fff !important;
+}
+[data-bs-theme=dark] .bg-white
+{
+  background-color: #000 !important;
+}
+[data-bs-theme=dark] .bg-light {
+  background-color: #1e1e1e !important;
+}
+[data-bs-theme=dark] .btn-dark 
+{
+  background-color: #fff;
+  color: #000;
+}
+[data-bs-theme=dark] .select2-container--bootstrap-5 .select2-selection,
+[data-bs-theme=dark] .select2-dropdown,
+[data-bs-theme=dark] .select2-container--bootstrap-5 .select2-dropdown .select2-search .select2-search__field,
+[data-bs-theme=dark] .select2-container--default .select2-selection--multiple 
+{
+  background-color: #212529;
+  color: #dee2e6 !important;
+  border-color: #495057;
+}
+
+[data-bs-theme=dark] .select2-container--bootstrap-5 .select2-selection--single .select2-selection__rendered 
+{
+  color: #dee2e6 !important;
+}
+[data-bs-theme=dark] .select2-container--default .select2-selection--multiple .select2-selection__choice,
+[data-bs-theme=dark] .select2-container--default .select2-results__option[aria-selected=true] 
+{
+  color: #000;
+}
+[data-bs-theme=dark] .arrow-dm:before {
+  color: var(--bs-body-bg);
+}
+[data-bs-theme=dark] .blocked {
+  background-color: transparent !important;
+}
+[data-bs-theme=dark] .btn-outline-dark {
+  border-color: #fff !important;
+  color: #fff !important;
 }

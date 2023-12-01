@@ -1,15 +1,15 @@
 <?php
 
-namespace App;
+namespace App\Services;
 
 use Cookie;
+use App\Helper;
 use App\Models\User;
-use App\Models\AdminSettings;
 use App\Models\Countries;
 use App\Models\Referrals;
 use Illuminate\Support\Str;
+use App\Models\AdminSettings;
 use App\Http\Controllers\Traits\Functions;
-use App\Helper;
 use Laravel\Socialite\Contracts\User as ProviderUser;
 
 class SocialAccountService
@@ -107,7 +107,8 @@ class SocialAccountService
                 'story'             => trans('users.story_default'),
                 'verified_id'       => $verify,
                 'ip'                => request()->ip(),
-                'language'          => session('locale')
+                'language'          => session('locale'),
+                'hide_name'         => 'yes',
 			]);
 
       // Check Referral

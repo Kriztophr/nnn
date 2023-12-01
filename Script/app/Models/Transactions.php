@@ -8,6 +8,8 @@ class Transactions extends Model
 {
     const UPDATED_AT = null;
 
+    protected $fillable = ['approved'];
+
     public function user()
     {
       return $this->belongsTo(User::class)->first();

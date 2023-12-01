@@ -38,23 +38,27 @@
 
                   @if ($currentSession)
                   <p class="card-text mb-4 border-bottom pb-2">
-                    <i class="bi-{{ $currentSession->device_type == 'phone' ? 'phone' : 'laptop' }} mr-1"></i> 
-                    <strong>{{ $currentSession->browser }}, {{ $currentSession->platform }}{{ $currentSession->device_type == 'phone' ? ', '.$currentSession->device : null }}</strong> -  <small class="timeAgo text-muted mr-2" data="{{date('c', strtotime($currentSession->updated_at))}}"></small> 
+                    <i class="bi-{{ $currentSession->device_type == 'phone' ? 'phone' : 'display' }} mr-1"></i> 
+                    <strong>{{ $currentSession->getNameBrowser() }} {{ __('general.on') }} {{ $currentSession->getNamePlatform() }}{{ $currentSession->device_type == 'phone' ? ', '.$currentSession->device : null }}</strong>
                   <span class="badge badge-pill badge-success">{{ __('general.active_now') }}</span>
 
-                  <small class="text-muted w-100 d-block mt-2 mb-0">{{ $currentSession->ip }} {{ $currentSession->country ? ' - '.$currentSession->country : null }}</small> 
+                  <small class="text-muted w-100 d-block mt-2 mb-0">
+                    {{ $currentSession->ip }} - {{ $currentSession->country ? $currentSession->country.' - ' : null }} <span class="timeAgo" data="{{date('c', strtotime($currentSession->updated_at))}}"></span> 
+                  </small> 
                   </p>
                   @endif
                   
                   @foreach ($agents as $agent)
                   <p class="card-text mb-1">
-                    <i class="bi-{{ $agent->device_type == 'phone' ? 'phone' : 'laptop' }} mr-1"></i> 
-                    <strong>{{ $agent->browser }}, {{ $agent->platform }}{{ $agent->device_type == 'phone' ? ', '.$agent->device : null }}</strong> -  <small class="timeAgo text-muted mr-2" data="{{date('c', strtotime($agent->updated_at))}}"></small> 
+                    <i class="bi-{{ $agent->device_type == 'phone' ? 'phone' : 'display' }} mr-1"></i> 
+                    <strong>{{ $agent->getNameBrowser() }} {{ __('general.on') }}  {{ $agent->getNamePlatform() }} {{ $agent->device_type == 'phone' ? ', '.$agent->device : null }}</strong> 
                   </p>
-                  <small class="text-muted w-100 d-block mb-2">{{ $agent->ip }} {{ $agent->country ? ' - '.$agent->country : null }}</small> 
+                  <small class="text-muted w-100 d-block mb-2">
+                    {{ $agent->ip }} - {{ $agent->country ? $agent->country.' - ' : null }} <span class="timeAgo" data="{{date('c', strtotime($agent->updated_at))}}"></span> 
+                  </small> 
                   @endforeach
                 
-                  <small class="text-muted w-100 d-block mt-3">* {{ __('general.login_session_alert') }}</small> 
+                  <small class="text-muted w-100 d-block my-3 font-weight-bold"> <i class="bi-exclamation-triangle mr-1"></i> {{ __('general.login_session_alert') }}</small> 
 
                   @if ($agents->count() != 0)
                   <a href="#" class="btn btn-sm btn-danger mt-2" data-toggle="modal" data-target="#logoutDevices">

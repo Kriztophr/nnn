@@ -54,7 +54,7 @@
 
         	foreach ($notifications as $key) {
 
-            $postUrl = url($key->usernameAuthor, ['post', $key->id]);
+            $postUrl = $key->id ? url($key->usernameAuthor, ['post', $key->id ]) : null;
             $notyNormal = true;
 
         		switch ($key->type) {
@@ -179,6 +179,48 @@
                 $action          = __('general.body_account_verification_reject');
                 $linkDestination = false;
                 $iconNotify      = 'bi-exclamation-triangle';
+                $notyNormal      = false;
+                break;
+
+              case 20:
+                $action          = __('general.error_video_encoding_post');
+                $linkDestination = false;
+                $iconNotify      = 'bi-bug';
+                $notyNormal      = false;
+                break;
+
+              case 21:
+                $action          = __('general.error_video_encoding_message');
+                $linkDestination = false;
+                $iconNotify      = 'bi-bug';
+                $notyNormal      = false;
+                break;
+
+              case 22:
+                $action          = __('general.error_video_encoding_story');
+                $linkDestination = false;
+                $iconNotify      = 'bi-bug';
+                $notyNormal      = false;
+                break;
+
+              case 23:
+        				$action          = __('general.has_sent_private_live_stream_request');
+        				$linkDestination = url('my/live/private/requests');
+                $text_link       = __('general.go_received_requests');
+        				break;
+
+              case 24:
+                $action          = __('general.video_processed_successfully_welcome_message');
+                $linkDestination = url('settings/conversations');
+                $text_link       = __('general.go_to_conversations');
+                $iconNotify       = 'bi bi-play-circle';
+                $notyNormal      = false;
+                break;
+
+              case 25:
+                $action          = __('general.error_video_encoding_welcome_msg');
+                $linkDestination = false;
+                $iconNotify      = 'bi-bug';
                 $notyNormal      = false;
                 break;
         		}

@@ -2,32 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Http\File;
-use Illuminate\Support\Facades\Storage;
-use App\Models\User;
-use App\Models\Updates;
-use App\Models\Messages;
-use App\Models\AdminSettings;
-use App\Models\Media;
-use Carbon\Carbon;
-use App\Helper;
 use Image;
+use App\Helper;
 use FileUploader;
+use App\Models\Media;
+use Illuminate\Http\File;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class UploadMediaController extends Controller
 {
 
-	public function __construct(AdminSettings $settings, Request $request)
+	public function __construct(Request $request)
 	{
-		$this->settings = $settings::select(
-			'maximum_files_post',
-			'file_size_allowed',
-			'watermark',
-			'video_encoding'
-			)->first();
 		$this->request = $request;
-		$this->middleware('auth');
 	}
 
 	/**
@@ -40,7 +28,7 @@ class UploadMediaController extends Controller
 		$publicPath = public_path('temp/');
 		$file = strtolower(auth()->id().uniqid().time().str_random(20));
 
-		if ($this->settings->video_encoding == 'off') {
+		if (config('settings.video_encoding') == 'off') {
 			$extensions = ['png','jpeg','jpg','gif','ief','video/mp4','audio/x-matroska','audio/mpeg'];
 		} else {
 			$extensions = [
@@ -65,8 +53,8 @@ class UploadMediaController extends Controller
 
 		// initialize FileUploader
 		$FileUploader = new FileUploader('photo', array(
-			'limit' => $this->settings->maximum_files_post,
-			'fileMaxSize' => floor($this->settings->file_size_allowed / 1024),
+			'limit' => config('settings.maximum_files_post'),
+			'fileMaxSize' => floor(config('settings.file_size_allowed') / 1024),
 			'extensions' => $extensions,
 			'title' => $file,
 			'uploadDir' => $publicPath
@@ -154,7 +142,7 @@ class UploadMediaController extends Controller
 					 $fontSize = 0;
 				 }
 
-				 if ($this->settings->watermark == 'on') {
+				 if (config('settings.watermark') == 'on') {
 					 $img->orientate()->resize($scale, null, function ($constraint) {
 						 $constraint->aspectRatio();
 						 $constraint->upsize();
@@ -241,7 +229,7 @@ class UploadMediaController extends Controller
 				]);
 
 					// Move file to Storage
-					if ($this->settings->video_encoding == 'off') {
+					if (config('settings.video_encoding') == 'off') {
 						$this->moveFileStorage($video, $path);
 					}
 			}
@@ -285,7 +273,7 @@ class UploadMediaController extends Controller
 	      */
 		 protected function moveFileStorage($file, $path)
 		 {
-			 $localFile = public_path('temp/'.$file);
+			$localFile = public_path('temp/'.$file);
 
 			// Move the file...
 			Storage::putFileAs($path, new File($localFile), $file);
